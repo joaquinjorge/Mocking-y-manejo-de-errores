@@ -1,0 +1,33 @@
+<h2>Product Page</h2>
+<hr />
+<h2>Productos:</h2>
+<h3>Bienvenido:{{user.nombre}}--- su rol es :{{user.rol}}</h3>
+<ul>
+  {{#each productos}}
+    <li>{{this.title}}</li>
+  {{/each}}
+</ul>
+
+<br /><br />
+<a href="/products/?pagina=1">Pág.1</a>
+
+{{#if hasPrevPage}}
+  <a href="/products/?pagina={{prevPage}}">Pág.Ant.</a>
+{{else}}
+  <span>Pág.Ant.</span>
+{{/if}}
+
+{{#if hasNextPage}}
+  <a href="/products/?pagina={{nextPage}}">Pág.Sig.</a>
+{{else}}
+  <span>Pág.Sig.</span>
+{{/if}}
+
+<a href="/products/?pagina={{totalPages}}">Ult.Pág.</a>
+<br /><br />
+<br /><br />
+<a href="/realtimeproducts">Real time Products</a>
+<a href="/chat">Chat</a>
+<a href="/carts">Cart</a>
+<a href="/">Home</a>
+{{>menu}}

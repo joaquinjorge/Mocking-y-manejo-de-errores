@@ -1,0 +1,26 @@
+<h2>Carts</h2>
+<hr />
+<h2></h2>
+
+<div>
+  
+  <div>
+    <p>cart:{{existe._id}}</p>
+      {{#each existe.products}}
+     
+      
+     
+
+     <h3>producto:{{this.product.title}} </h3>
+    <h3>precio:{{this.product.price}} </h3>
+      <h3>cantidad:{{this.quantity}} </h3>
+    
+
+    
+      {{/each}}
+    {{!-- <li id="producto-{{_id}}">{{title}}</li></div> --}}
+ 
+</div>
+<a href="/">home</a>
+  
+   {{>menu}}

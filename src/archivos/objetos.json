@@ -1,0 +1,78 @@
+[
+     {
+          "title": "producto prueba",
+          "description": "este es un producto prueba",
+          "price": 200,
+          "thumbnail": "sin imagen",
+          "code": "abc123",
+          "stock": 20,
+          "id": 1
+     },
+     {
+          "title": "remeras",
+          "description": "este es un producto prueba",
+          "price": 200,
+          "thumbnail": "sin imagen",
+          "code": "abc1234",
+          "stock": 25,
+          "id": 2
+     },
+     {
+          "title": "Zapatillas",
+          "description": "este es un producto prueba",
+          "price": 200,
+          "thumbnail": "sin imagen",
+          "code": "abc1235",
+          "stock": 25,
+          "id": 3
+     },
+     {
+          "title": "Botines",
+          "description": "este es un producto prueba",
+          "price": 200,
+          "thumbnail": "sin imagen",
+          "code": "abc1236",
+          "stock": 25,
+          "id": 4
+     },
+     {
+          "title": "Campera",
+          "description": "este es un producto prueba",
+          "price": 200,
+          "thumbnail": "sin imagen",
+          "code": "abc1237",
+          "stock": 25,
+          "id": 5
+     },
+     {
+          "title": "Sweater",
+          "description": "este es un producto prueba",
+          "price": 200,
+          "thumbnail": "sin imagen",
+          "code": "abc1238",
+          "stock": 25,
+          "id": 6
+     },
+     {
+          "id": 7,
+          "title": "producto prueba 3",
+          "price": 200,
+          "description": "este es un producto prueba",
+          "code": "abc123846",
+          "stock": 25,
+          "status": true,
+          "category": "prueba",
+          "thumbnails": "sin imagen"
+     },
+     {
+          "id": 8,
+          "title": "producto prueba 4",
+          "price": 200,
+          "description": "este es un producto prueba",
+          "code": "abc1238486",
+          "stock": 25,
+          "status": true,
+          "category": "prueba",
+          "thumbnails": "sin imagen"
+     }
+]
