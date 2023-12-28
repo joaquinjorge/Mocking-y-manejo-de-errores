@@ -11,6 +11,9 @@ const cartRouter = require("./routes/cart.js");
 const vistasRouter = require("./routes/vistas.js");
 const messagesModelo = require("./dao/models/messages.js");
 const sessionRouter = require("./routes/session.js");
+const passport = require("passport");
+const inicializarPassport = require("./config/config.passport.js");
+
 
 const app = express();
 
@@ -33,6 +36,9 @@ app.set("view engine", "handlebars");
 app.set("views", path.join(__dirname, "/views"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+inicializarPassport()
+app.use(passport.initialize())
+app.use(passport.session())
 app.use(express.static(path.join(__dirname, "/public")));
 
 try {

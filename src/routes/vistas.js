@@ -21,13 +21,14 @@ const auth = (req, res, next) => {
 
 const auth2 = (req, res, next) => {
   if (req.session.usuario) {
-    return res.redirect("/products");
+    return res.redirect("/perfil");
   }
 
   next();
 };
 
 vistasRouter.get("/products", auth, async (req, res) => {
+ 
   let pagina = 1;
   if (req.query.pagina) {
     pagina = req.query.pagina;
@@ -40,7 +41,7 @@ vistasRouter.get("/products", auth, async (req, res) => {
       { deleted: false },
       { lean: true, limit: 5, page: pagina }
     );
-    console.log(productos);
+    
   } catch (error) {
     console.log(error);
     productos = [];
@@ -62,7 +63,7 @@ vistasRouter.get("/products", auth, async (req, res) => {
   });
 });
 
-vistasRouter.get("/realtimeproducts", auth, async (req, res) => {
+vistasRouter.get("/realtimeproducts", auth,  async (req, res) => {
   let products = await productosModelo.find();
   res.status(200).render("realTimeProducts", {
     products,
@@ -81,7 +82,7 @@ vistasRouter.get("/", auth, async (req, res) => {
   });
 });
 
-vistasRouter.get("/carts", auth, async (req, res) => {
+vistasRouter.get("/carts",  auth, async (req, res) => {
   let carts = await cartsModelo.find().populate();
 
   res.status(200).render("carts", {
@@ -115,7 +116,7 @@ vistasRouter.get("/cart/:cid", auth, async (req, res) => {
     return res.status(400).json({ error: `No existe carrito con id ${id}` });
   }
 
-  res.status(200).render("cart", auth, {
+  res.status(200).render("cart",  {
     existe,
     titulo: "Carts",
     estilo: "stylesHome",
@@ -133,7 +134,7 @@ vistasRouter.get("/chat", auth, (req, res) => {
 
 vistasRouter.get("/perfil", auth, (req, res) => {
   let usuario = req.session.usuario;
-  console.log(req.session.usuario);
+ 
 
   res.setHeader("Content-Type", "text/html");
   res
@@ -153,7 +154,7 @@ vistasRouter.get("/login", auth2, (req, res) => {
     });
 });
 
-vistasRouter.get("/registro", (req, res) => {
+vistasRouter.get("/registro",auth2, (req, res) => {
   let { error } = req.query;
 
   res.setHeader("Content-Type", "text/html");
