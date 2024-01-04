@@ -1,9 +1,39 @@
-const Router = require("express").Router;
-
 const crypto = require("crypto");
+const Router = require("express").Router;
 const usuariosModelo = require("../dao/models/usuarios.js");
 const passport = require("passport");
 const sessionRouter = Router();
+
+sessionRouter.get(
+  "/github",
+  passport.authenticate("github", {}),
+  (req, res) => {
+    console.log("hola");
+  }
+);
+
+sessionRouter.get(
+  "/callbackGithub",
+  passport.authenticate("github", {
+    failureRedirect: "/api/sessions/errorGithub",
+  }),
+  (req, res) => {
+    req.session.usuario = {
+      nombre: req.user.nombre,
+      email: req.user.email,
+    };
+    console.log(req.session.usuario);
+    res.redirect("/products");
+  }
+);
+
+sessionRouter.get("/errorGithub", (req, res) => {
+  res.setHeader("Content-Type", "application/json");
+  res.status(200).json({
+    error: "Error al autenticar con Github",
+  });
+});
+
 sessionRouter.get("/errorLogin", (req, res) => {
   return res.redirect("/login?error=Error en el proceso de login... :(");
 });
@@ -43,26 +73,10 @@ sessionRouter.post(
   }
 );
 
-sessionRouter.get('/github', passport.authenticate('github',{}), (req,res)=>{})
 sessionRouter.get("/errorRegistro", (req, res) => {
   return res.redirect("/registro?error=Error en el proceso de registro");
 });
-sessionRouter.get('/callbackGithub', passport.authenticate('github',{failureRedirect:"/api/sessions/errorGithub"}), (req,res)=>{
-    
-  console.log(req.user)
-  req.session.usuario=req.user
-  res.setHeader('Content-Type','application/json');
-  res.status(200).json({
-      message:"Acceso OK...!!!", usuario: req.user
-  });
-});
-sessionRouter.get('/errorGithub',(req,res)=>{
-    
-  res.setHeader('Content-Type','application/json');
-  res.status(200).json({
-      error: "Error al autenticar con Github"
-  });
-});
+
 sessionRouter.post(
   "/registro",
   passport.authenticate("registro", {

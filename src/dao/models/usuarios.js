@@ -7,14 +7,10 @@ const usuariosEsquema = new mongoose.Schema(
       type: String,
       unique: true,
     },
+    apellido: String,
     password: String,
   },
-  {
-    timestamps: {
-      updatedAt: "FechaUltMod",
-      createdAt: "FechaAlta",
-    },
-  }
+  { strict: false }
 );
 
 const usuariosModelo = mongoose.model("usuarios", usuariosEsquema);

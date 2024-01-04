@@ -14,7 +14,6 @@ const sessionRouter = require("./routes/session.js");
 const passport = require("passport");
 const inicializarPassport = require("./config/config.passport.js");
 
-
 const app = express();
 
 app.use(
@@ -36,9 +35,9 @@ app.set("view engine", "handlebars");
 app.set("views", path.join(__dirname, "/views"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-inicializarPassport()
-app.use(passport.initialize())
-app.use(passport.session())
+inicializarPassport();
+app.use(passport.initialize());
+app.use(passport.session());
 app.use(express.static(path.join(__dirname, "/public")));
 
 try {

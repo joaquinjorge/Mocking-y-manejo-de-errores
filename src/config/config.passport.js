@@ -15,9 +15,9 @@ const inicializarPassport = () => {
     "github",
     new github.Strategy(
       {
-        clientID: "",
-        clientSecret: "",
-        callbackURL: "",
+        clientID: "Iv1.5fb3b9b47a45dc2d",
+        clientSecret: "e9b3584ed84fb50d3cddb8957d7c586cdef0c979",
+        callbackURL: "http://localhost:8080/api/sessions/callbackGithub",
       },
       async (accessToken, refreshToken, profile, done) => {
         try {
@@ -29,7 +29,6 @@ const inicializarPassport = () => {
             let nuevoUsuario = {
               nombre: profile._json.name,
               email: profile._json.email,
-              password: "",
             };
 
             usuario = await usuariosModelo.create(nuevoUsuario);
