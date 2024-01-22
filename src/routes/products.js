@@ -97,6 +97,26 @@ const entorno = async () => {
     console.log("ocurrio un error");
   }
 };
+const auth1=(permisos=[])=>function(req,res,next){
+
+  permisos=permisos.map(p=>p.toLowerCase())
+
+  if(permisos.includes("PUBLIC")){
+      return next()
+  }
+
+  if(!req.session.usuario || !req.session.usuario.rol){
+      res.setHeader('Content-Type','application/json');
+      return res.status(401).json({error:`No hay usuarios autenticados...!!!`})
+  }
+
+  if(!permisos.includes(req.session.usuario.rol.toLowerCase())){
+      res.setHeader('Content-Type','application/json');
+      return res.status(403).json({error:`No tiene privilegios suficientes para este recurso`})
+  }
+
+  return next()
+}
 
 productsRouter.get("/", async (req, res) => {
   const page = parseInt(req.query.page) || 1;
@@ -140,7 +160,7 @@ productsRouter.get("/", async (req, res) => {
     });
   }
 });
-productsRouter.post("/", async (req, res) => {
+productsRouter.post("/",auth1(["ADMIN"]), async (req, res) => {
   let { title, price, description, code, stock, status, category } = req.body;
   if (!status) {
     status = true;
@@ -248,7 +268,7 @@ productsRouter.post("/", async (req, res) => {
   }
 });
 
-productsRouter.put("/:id", async (req, res) => {
+productsRouter.put("/:id", auth1(["ADMIN"]),async (req, res) => {
   let { id } = req.params;
   if (!mongoose.Types.ObjectId.isValid(id)) {
     res.setHeader("Content-Type", "application/json");
@@ -341,7 +361,7 @@ productsRouter.put("/:id", async (req, res) => {
   }
 });
 
-productsRouter.delete("/:pid", async (req, res) => {
+productsRouter.delete("/:pid",auth1(["ADMIN"]), async (req, res) => {
   let id = req.params.pid;
 
   if (!mongoose.Types.ObjectId.isValid(id)) {

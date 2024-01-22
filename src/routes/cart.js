@@ -12,7 +12,31 @@ const Router = require("express").Router;
 const cartRouter = Router();
 let pm01 = new ProductManager(ruta2);
 let pm02 = new ProductManager(ruta);
-cartRouter.post("/", async (req, res) => {
+const auth1 = (permisos = []) =>
+  function (req, res, next) {
+    permisos = permisos.map((p) => p.toLowerCase());
+
+    if (permisos.includes("PUBLIC")) {
+      return next();
+    }
+
+    if (!req.session.usuario || !req.session.usuario.rol) {
+      res.setHeader("Content-Type", "application/json");
+      return res
+        .status(401)
+        .json({ error: `No hay usuarios autenticados...!!!` });
+    }
+
+    if (!permisos.includes(req.session.usuario.rol.toLowerCase())) {
+      res.setHeader("Content-Type", "application/json");
+      return res
+        .status(403)
+        .json({ error: `No tiene privilegios suficientes para este recurso` });
+    }
+
+    return next();
+  };
+cartRouter.post("/", auth1(["ADMIN"]), async (req, res) => {
   let carrito = [];
 
   try {
@@ -65,7 +89,7 @@ cartRouter.get("/:cid", async (req, res) => {
   return res.status(200).json({ carrito: existe });
 });
 
-cartRouter.post("/:cid/product/:pid", async (req, res) => {
+cartRouter.post("/:cid/product/:pid", auth1(["ADMIN"]), async (req, res) => {
   let { cid, pid } = req.params;
 
   if (!mongoose.isValidObjectId(cid) || !mongoose.isValidObjectId(pid)) {
@@ -147,7 +171,7 @@ cartRouter.post("/:cid/product/:pid", async (req, res) => {
       .json({ error: `Error inesperado`, message: error.message });
   }
 });
-cartRouter.delete("/:cid/product/:pid", async (req, res) => {
+cartRouter.delete("/:cid/product/:pid", auth1(["ADMIN"]), async (req, res) => {
   let { cid, pid } = req.params;
   if (!mongoose.isValidObjectId(cid) || !mongoose.isValidObjectId(pid)) {
     res.setHeader("Content-Type", "application/json");
@@ -212,7 +236,7 @@ cartRouter.delete("/:cid/product/:pid", async (req, res) => {
   }
 });
 
-cartRouter.delete("/:cid", async (req, res) => {
+cartRouter.delete("/:cid", auth1(["ADMIN"]), async (req, res) => {
   const carritoId = req.params.cid;
   if (!mongoose.isValidObjectId(carritoId)) {
     res.setHeader("Content-Type", "application/json");

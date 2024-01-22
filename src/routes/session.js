@@ -2,6 +2,7 @@ const crypto = require("crypto");
 const Router = require("express").Router;
 const usuariosModelo = require("../dao/models/usuarios.js");
 const passport = require("passport");
+const passportCall = require("../utils.js");
 const sessionRouter = Router();
 
 sessionRouter.get(
@@ -21,6 +22,9 @@ sessionRouter.get(
     req.session.usuario = {
       nombre: req.user.nombre,
       email: req.user.email,
+      edad: req.user.edad,
+      apellido: req.user.apellido,
+      rol: req.user.rol,
     };
     console.log(req.session.usuario);
     res.redirect("/products");
@@ -33,16 +37,17 @@ sessionRouter.get("/errorGithub", (req, res) => {
     error: "Error al autenticar con Github",
   });
 });
-
-sessionRouter.get("/errorLogin", (req, res) => {
-  return res.redirect("/login?error=Error en el proceso de login... :(");
-});
-sessionRouter.post(
-  "/login",
-  passport.authenticate("login", {
-    failureRedirect: "/api/sessions/errorLogin",
-  }),
-  async (req, res) => {
+sessionRouter.get("/current", async (req, res) => {
+  if (!req.session.usuario) {
+    res.status(400).json({
+      status: "Bad Request",
+      error: "no hay un usuario logueado actualmente",
+    });
+  } else {
+    res.status(200).json({ status: "OK", usuarioActual: req.session.usuario });
+  }
+}),
+  sessionRouter.post("/login", passportCall("login"), async (req, res) => {
     let { email, password } = req.body;
     // if (!email || !password) {
     //   return res.redirect("/login?error=Complete todos los datos");
@@ -63,31 +68,19 @@ sessionRouter.post(
     req.session.usuario = {
       nombre: req.user.nombre,
       email: req.user.email,
-      rol:
-        email == "adminCoder@coder.com" && password == "adminCod3r123"
-          ? "admin"
-          : "user",
+      rol: req.user.rol,
+      apellido: req.user.apellido,
+      edad: req.user.edad,
     };
 
     res.redirect("/products");
-  }
-);
+  });
 
-sessionRouter.get("/errorRegistro", (req, res) => {
-  return res.redirect("/registro?error=Error en el proceso de registro");
+sessionRouter.post("/registro", passportCall("registro"), async (req, res) => {
+  let { email } = req.body;
+
+  res.redirect(`/login?mensaje=Usuario ${email} registrado correctamente`);
 });
-
-sessionRouter.post(
-  "/registro",
-  passport.authenticate("registro", {
-    failureRedirect: "/api/sessions/errorRegistro",
-  }),
-  async (req, res) => {
-    let { email } = req.body;
-
-    res.redirect(`/login?mensaje=Usuario ${email} registrado correctamente`);
-  }
-);
 
 sessionRouter.get("/logout", (req, res) => {
   req.session.destroy((error) => {

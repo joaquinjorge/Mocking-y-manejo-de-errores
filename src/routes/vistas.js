@@ -11,6 +11,31 @@ const Router = require("express").Router;
 const vistasRouter = Router();
 let pm01 = new ProductManager(ruta);
 
+const auth1 = (permisos = []) =>
+  function (req, res, next) {
+    permisos = permisos.map((p) => p.toLowerCase());
+
+    if (permisos.includes("PUBLIC")) {
+      return next();
+    }
+
+    if (!req.session.usuario || !req.session.usuario.rol) {
+      res.setHeader("Content-Type", "application/json");
+      return res
+        .status(401)
+        .json({ error: `No hay usuarios autenticados...!!!` });
+    }
+
+    if (!permisos.includes(req.session.usuario.rol.toLowerCase())) {
+      res.setHeader("Content-Type", "application/json");
+      return res
+        .status(403)
+        .json({ error: `No tiene privilegios suficientes para este recurso` });
+    }
+
+    return next();
+  };
+
 const auth = (req, res, next) => {
   if (!req.session.usuario) {
     return res.redirect("/login");
@@ -27,8 +52,7 @@ const auth2 = (req, res, next) => {
   next();
 };
 
-vistasRouter.get("/products", auth, async (req, res) => {
- 
+vistasRouter.get("/products", auth1(["USUARIO", "ADMIN"]), async (req, res) => {
   let pagina = 1;
   if (req.query.pagina) {
     pagina = req.query.pagina;
@@ -41,7 +65,6 @@ vistasRouter.get("/products", auth, async (req, res) => {
       { deleted: false },
       { lean: true, limit: 5, page: pagina }
     );
-    
   } catch (error) {
     console.log(error);
     productos = [];
@@ -63,15 +86,19 @@ vistasRouter.get("/products", auth, async (req, res) => {
   });
 });
 
-vistasRouter.get("/realtimeproducts", auth,  async (req, res) => {
-  let products = await productosModelo.find();
-  res.status(200).render("realTimeProducts", {
-    products,
-    titulo: "Real Time Products",
-    estilo: "stylesHome",
-    login: req.session.usuario ? true : false,
-  });
-});
+vistasRouter.get(
+  "/realtimeproducts",
+  auth1(["USUARIO", "ADMIN"]),
+  async (req, res) => {
+    let products = await productosModelo.find();
+    res.status(200).render("realTimeProducts", {
+      products,
+      titulo: "Real Time Products",
+      estilo: "stylesHome",
+      login: req.session.usuario ? true : false,
+    });
+  }
+);
 vistasRouter.get("/", auth, async (req, res) => {
   let products = await productosModelo.find();
   res.status(200).render("home", {
@@ -82,7 +109,7 @@ vistasRouter.get("/", auth, async (req, res) => {
   });
 });
 
-vistasRouter.get("/carts",  auth, async (req, res) => {
+vistasRouter.get("/carts", auth1(["USUARIO", "ADMIN"]), async (req, res) => {
   let carts = await cartsModelo.find().populate();
 
   res.status(200).render("carts", {
@@ -92,39 +119,43 @@ vistasRouter.get("/carts",  auth, async (req, res) => {
     login: req.session.usuario ? true : false,
   });
 });
-vistasRouter.get("/cart/:cid", auth, async (req, res) => {
-  let id = req.params.cid;
+vistasRouter.get(
+  "/cart/:cid",
+  auth1(["USUARIO", "ADMIN"]),
+  async (req, res) => {
+    let id = req.params.cid;
 
-  if (!mongoose.isValidObjectId(id)) {
-    res.setHeader("Content-Type", "application/json");
-    return res.status(400).json({ error: `Indique un id válido` });
+    if (!mongoose.isValidObjectId(id)) {
+      res.setHeader("Content-Type", "application/json");
+      return res.status(400).json({ error: `Indique un id válido` });
+    }
+
+    let existe;
+
+    try {
+      existe = await cartsModelo.findOne({ deleted: false, _id: id });
+    } catch (error) {
+      res.setHeader("Content-Type", "application/json");
+      return res
+        .status(500)
+        .json({ error: `No se encontro el carrito`, message: error.message });
+    }
+
+    if (!existe) {
+      res.setHeader("Content-Type", "application/json");
+      return res.status(400).json({ error: `No existe carrito con id ${id}` });
+    }
+
+    res.status(200).render("cart", {
+      existe,
+      titulo: "Carts",
+      estilo: "stylesHome",
+      login: req.session.usuario ? true : false,
+    });
   }
+);
 
-  let existe;
-
-  try {
-    existe = await cartsModelo.findOne({ deleted: false, _id: id });
-  } catch (error) {
-    res.setHeader("Content-Type", "application/json");
-    return res
-      .status(500)
-      .json({ error: `No se encontro el carrito`, message: error.message });
-  }
-
-  if (!existe) {
-    res.setHeader("Content-Type", "application/json");
-    return res.status(400).json({ error: `No existe carrito con id ${id}` });
-  }
-
-  res.status(200).render("cart",  {
-    existe,
-    titulo: "Carts",
-    estilo: "stylesHome",
-    login: req.session.usuario ? true : false,
-  });
-});
-
-vistasRouter.get("/chat", auth, (req, res) => {
+vistasRouter.get("/chat", auth1(["USUARIO", "ADMIN"]), (req, res) => {
   res.status(200).render("chat", {
     titulo: "Chat",
     estilo: "styles",
@@ -132,9 +163,8 @@ vistasRouter.get("/chat", auth, (req, res) => {
   });
 });
 
-vistasRouter.get("/perfil", auth, (req, res) => {
+vistasRouter.get("/perfil", auth1(["USUARIO", "ADMIN"]), (req, res) => {
   let usuario = req.session.usuario;
- 
 
   res.setHeader("Content-Type", "text/html");
   res
@@ -145,16 +175,14 @@ vistasRouter.get("/login", auth2, (req, res) => {
   let { error, mensaje } = req.query;
 
   res.setHeader("Content-Type", "text/html");
-  res
-    .status(200)
-    .render("login", {
-      error,
-      mensaje,
-      login: req.session.usuario ? true : false,
-    });
+  res.status(200).render("login", {
+    error,
+    mensaje,
+    login: req.session.usuario ? true : false,
+  });
 });
 
-vistasRouter.get("/registro",auth2, (req, res) => {
+vistasRouter.get("/registro", auth2, (req, res) => {
   let { error } = req.query;
 
   res.setHeader("Content-Type", "text/html");

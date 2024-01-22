@@ -9,6 +9,7 @@ const usuariosModelo = require("../dao/models/usuarios.js");
 const passport = require("passport");
 const local = require("passport-local");
 const github = require("passport-github2");
+const cartsModelo = require("../dao/models/carts.js");
 
 const inicializarPassport = () => {
   passport.use(
@@ -26,9 +27,12 @@ const inicializarPassport = () => {
             email: profile._json.email,
           });
           if (!usuario) {
+            const newCart = await cartsModelo.create({ products: [] });
+            const cartId = newCart._id;
             let nuevoUsuario = {
               nombre: profile._json.name,
               email: profile._json.email,
+              cart: cartId,
             };
 
             usuario = await usuariosModelo.create(nuevoUsuario);
@@ -50,10 +54,10 @@ const inicializarPassport = () => {
       async (req, username, password, done) => {
         try {
           console.log("Estrategia local registro de Passport...!!!");
-          let { nombre, email } = req.body;
-          if (!nombre || !email || !password) {
+          let { nombre, email, apellido, edad } = req.body;
+          if (!nombre || !email || !password || !apellido || !edad) {
             // return res.redirect('/registro?error=Complete todos los datos')
-            return done(null, false);
+            return done(null, false, { message: `complete todos los campos` });
           }
 
           let regMail =
@@ -67,7 +71,9 @@ const inicializarPassport = () => {
           let existe = await usuariosModelo.findOne({ email });
           if (existe) {
             // return res.redirect(`/registro?error=Existen usuarios con email ${email} en la BD`)
-            return done(null, false);
+            return done(null, false, {
+              message: `Existen usuarios con email ${email} en la BD`,
+            });
           }
 
           // password=crypto.createHmac("sha256", "codercoder123").update(password).digest("hex")
@@ -75,7 +81,16 @@ const inicializarPassport = () => {
           console.log(password);
           let usuario;
           try {
-            usuario = await usuariosModelo.create({ nombre, email, password });
+            const newCart = await cartsModelo.create({ products: [] });
+            const cartId = newCart._id;
+            usuario = await usuariosModelo.create({
+              nombre,
+              email,
+              password,
+              apellido,
+              edad,
+              cart: cartId,
+            });
             // res.redirect(`/login?mensaje=Usuario ${email} registrado correctamente`)
             return done(null, usuario);
             // previo a devolver un usuario con done, passport graba en la req, una propiedad
@@ -102,7 +117,7 @@ const inicializarPassport = () => {
           // let {email, password}=req.body
           if (!username || !password) {
             // return res.redirect('/login?error=Complete todos los datos')
-            return done(null, false);
+            return done(null, false, { message: `complete todos los campos` });
           }
 
           // password=crypto.createHmac("sha256", "codercoder123").update(password).digest("hex")
@@ -112,11 +127,11 @@ const inicializarPassport = () => {
             .lean();
           if (!usuario) {
             // return res.redirect(`/login?error=credenciales incorrectas`)
-            return done(null, false);
+            return done(null, false, { message: `Credenciales incorrectas` });
           }
           if (!validaPassword(usuario, password)) {
             // return res.redirect(`/login?error=credenciales incorrectas`)
-            return done(null, false);
+            return done(null, false, { message: `Credenciales incorrectas` });
           }
 
           console.log(Object.keys(usuario));
