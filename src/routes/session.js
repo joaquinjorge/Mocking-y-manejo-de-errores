@@ -20,11 +20,11 @@ sessionRouter.get(
   }),
   (req, res) => {
     req.session.usuario = {
-      nombre: req.user.nombre,
+      nombre: req.user.first_name,
       email: req.user.email,
-      edad: req.user.edad,
-      apellido: req.user.apellido,
-      rol: req.user.rol,
+      edad: req.user.age,
+      apellido: req.user.last_name,
+      rol: req.user.role,
     };
     console.log(req.session.usuario);
     res.redirect("/products");
@@ -66,13 +66,13 @@ sessionRouter.get("/current", async (req, res) => {
     // }
 
     req.session.usuario = {
-      nombre: req.user.nombre,
+      nombre: req.user.first_name,
       email: req.user.email,
-      rol: req.user.rol,
-      apellido: req.user.apellido,
-      edad: req.user.edad,
+      rol: req.user.role,
+      apellido: req.user.last_name,
+      edad: req.user.age,
     };
-
+    console.log(req.session.usuario)
     res.redirect("/products");
   });
 

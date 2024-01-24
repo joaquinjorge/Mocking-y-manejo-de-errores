@@ -2,16 +2,16 @@ const mongoose = require("mongoose");
 
 const usuariosEsquema = new mongoose.Schema(
   {
-    nombre: String,
-    apellido: String,
-    edad: Number,
+    first_name: String,
+    last_name: String,
+    age: Number,
     email: {
       type: String,
       unique: true,
     },
-    rol: { type: String, default: "usuario" },
+    role: { type: String, default: "usuario" },
     cart: { type: mongoose.Schema.Types.ObjectId, ref: "carts" },
-    apellido: String,
+
     password: String,
   },
   { strict: false }

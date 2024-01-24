@@ -30,7 +30,7 @@ const inicializarPassport = () => {
             const newCart = await cartsModelo.create({ products: [] });
             const cartId = newCart._id;
             let nuevoUsuario = {
-              nombre: profile._json.name,
+             first_name: profile._json.name,
               email: profile._json.email,
               cart: cartId,
             };
@@ -84,11 +84,11 @@ const inicializarPassport = () => {
             const newCart = await cartsModelo.create({ products: [] });
             const cartId = newCart._id;
             usuario = await usuariosModelo.create({
-              nombre,
+              first_name:nombre,
               email,
               password,
-              apellido,
-              edad,
+              last_name:apellido,
+              age:edad,
               cart: cartId,
             });
             // res.redirect(`/login?mensaje=Usuario ${email} registrado correctamente`)
