@@ -10,15 +10,16 @@ const passport = require("passport");
 const local = require("passport-local");
 const github = require("passport-github2");
 const cartsModelo = require("../dao/models/carts.js");
+const configDotenv = require("./config.js");
 
 const inicializarPassport = () => {
   passport.use(
     "github",
     new github.Strategy(
       {
-        clientID: "Iv1.5fb3b9b47a45dc2d",
-        clientSecret: "e9b3584ed84fb50d3cddb8957d7c586cdef0c979",
-        callbackURL: "http://localhost:8080/api/sessions/callbackGithub",
+        clientID: configDotenv.sessions.CLIENTID,
+        clientSecret: configDotenv.sessions.CLIENTSECRET,
+        callbackURL: configDotenv.sessions.CALLBACKURL,
       },
       async (accessToken, refreshToken, profile, done) => {
         try {
@@ -30,7 +31,7 @@ const inicializarPassport = () => {
             const newCart = await cartsModelo.create({ products: [] });
             const cartId = newCart._id;
             let nuevoUsuario = {
-             first_name: profile._json.name,
+              first_name: profile._json.name,
               email: profile._json.email,
               cart: cartId,
             };
@@ -84,11 +85,11 @@ const inicializarPassport = () => {
             const newCart = await cartsModelo.create({ products: [] });
             const cartId = newCart._id;
             usuario = await usuariosModelo.create({
-              first_name:nombre,
+              first_name: nombre,
               email,
               password,
-              last_name:apellido,
-              age:edad,
+              last_name: apellido,
+              age: edad,
               cart: cartId,
             });
             // res.redirect(`/login?mensaje=Usuario ${email} registrado correctamente`)

@@ -1,42 +1,40 @@
-
-
 const ProductsController = require("../controller/products.controller.js");
-
 
 const Router = require("express").Router;
 
 const productsRouter = Router();
 
+const auth1 = (permisos = []) =>
+  function (req, res, next) {
+    permisos = permisos.map((p) => p.toLowerCase());
 
+    if (permisos.includes("PUBLIC")) {
+      return next();
+    }
 
-const auth1=(permisos=[])=>function(req,res,next){
+    if (!req.session.usuario || !req.session.usuario.rol) {
+      res.setHeader("Content-Type", "application/json");
+      return res
+        .status(401)
+        .json({ error: `No hay usuarios autenticados...!!!` });
+    }
 
-  permisos=permisos.map(p=>p.toLowerCase())
+    if (!permisos.includes(req.session.usuario.rol.toLowerCase())) {
+      res.setHeader("Content-Type", "application/json");
+      return res
+        .status(403)
+        .json({ error: `No tiene privilegios suficientes para este recurso` });
+    }
 
-  if(permisos.includes("PUBLIC")){
-      return next()
-  }
-
-  if(!req.session.usuario || !req.session.usuario.rol){
-      res.setHeader('Content-Type','application/json');
-      return res.status(401).json({error:`No hay usuarios autenticados...!!!`})
-  }
-
-  if(!permisos.includes(req.session.usuario.rol.toLowerCase())){
-      res.setHeader('Content-Type','application/json');
-      return res.status(403).json({error:`No tiene privilegios suficientes para este recurso`})
-  }
-
-  return next()
-}
+    return next();
+  };
 
 productsRouter.get("/", ProductsController.getProducts);
-productsRouter.post("/", ProductsController.createProducts
-);
+productsRouter.post("/", ProductsController.createProducts);
 
-productsRouter.put("/:id",ProductsController.updateProducts);
+productsRouter.put("/:id", ProductsController.updateProducts);
 
 productsRouter.delete("/:pid", ProductsController.deleteProducts);
 
-productsRouter.get("/:pid",ProductsController.getProductsById);
+productsRouter.get("/:pid", ProductsController.getProductsById);
 module.exports = productsRouter;

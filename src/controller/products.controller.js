@@ -50,12 +50,15 @@ class ProductsController {
   static async getProductsById(req, res) {
     let id = req.params.pid;
     if (!mongoose.Types.ObjectId.isValid(id)) {
-        res.setHeader("Content-Type", "application/json");
-        return res.status(400).json({ error: `Ingrese un id válido...!!!` });
-      }
-    let productos = await productsService.getProductById({deleted:false,_id:id});
+      res.setHeader("Content-Type", "application/json");
+      return res.status(400).json({ error: `Ingrese un id válido...!!!` });
+    }
+    let productos = await productsService.getProductById({
+      deleted: false,
+      _id: id,
+    });
     res.setHeader("Content-Type", "application/json");
-  
+
     productos
       ? res.json({ productos })
       : res.status(400).json({ error: "ingrese un id valido" });
@@ -75,7 +78,7 @@ class ProductsController {
       status,
       category,
     };
-    let existe
+    let existe;
 
     try {
       existe = await productsService.getProductById({ deleted: false, code });
@@ -173,15 +176,15 @@ class ProductsController {
       res.setHeader("Content-Type", "application/json");
       return res.status(400).json({ error: `Ingrese un id válido...!!!` });
     }
-    let productos = await productsService.getProductById({_id:id});
-  
+    let productos = await productsService.getProductById({ _id: id });
+
     if (!productos) {
       res.setHeader("Content-Type", "application/json");
       return res
         .status(400)
         .json({ error: "no se encontro el producto con id:" + id });
     }
-  
+
     let propiedadesPermitidas = [
       "title",
       "price",
@@ -193,7 +196,7 @@ class ProductsController {
       "thumbnails",
     ];
     let propiedadesQueLlegan = Object.keys(req.body);
-  
+
     let valido = propiedadesQueLlegan.every((propiedad) =>
       propiedadesPermitidas.includes(propiedad)
     );
@@ -204,7 +207,7 @@ class ProductsController {
         propiedadesPermitidas,
       });
     }
-  
+
     if (req.body.title && typeof req.body.title !== "string") {
       return res
         .status(400)
@@ -220,7 +223,7 @@ class ProductsController {
         .status(400)
         .json({ error: "La propiedad description debe ser de tipo string" });
     }
-  
+
     if (req.body.category && typeof req.body.category !== "string") {
       return res
         .status(400)
@@ -245,11 +248,15 @@ class ProductsController {
       if (productoActualizado.modifiedCount > 0) {
         res.setHeader("Content-Type", "application/json");
         res.status(200).json({ payload: "modificacion realizada" });
-        let productoUpdateado = await productsService.getProductById({_id:id});
+        let productoUpdateado = await productsService.getProductById({
+          _id: id,
+        });
         req.io.emit("productoUpdate", productoUpdateado);
       } else {
         res.setHeader("Content-Type", "application/json");
-        return res.status(400).json({ error: `No se concretó la modificación` });
+        return res
+          .status(400)
+          .json({ error: `No se concretó la modificación` });
       }
     } catch (error) {
       res.setHeader("Content-Type", "application/json");
@@ -258,7 +265,6 @@ class ProductsController {
         detalle: error.message,
       });
     }
-
   }
   static async deleteProducts(req, res) {
     let id = req.params.pid;
@@ -267,8 +273,8 @@ class ProductsController {
       res.setHeader("Content-Type", "application/json");
       return res.status(400).json({ error: `Ingrese un id válido...!!!` });
     }
-    let productos = await productsService.getProductById({_id:id});
-  
+    let productos = await productsService.getProductById({ _id: id });
+
     if (!productos) {
       res.setHeader("Content-Type", "application/json");
       return res
@@ -277,10 +283,8 @@ class ProductsController {
     }
     let productoEliminado;
     try {
-      productoEliminado = await productsService.deleteProduct(
-       id
-      );
-  
+      productoEliminado = await productsService.deleteProduct(id);
+
       if (productoEliminado.modifiedCount > 0) {
         req.io.emit("prodEliminado", { id });
         res.setHeader("Content-Type", "application/json");

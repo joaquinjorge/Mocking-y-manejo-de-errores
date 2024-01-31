@@ -13,17 +13,17 @@ const messagesModelo = require("./dao/models/messages.js");
 const sessionRouter = require("./routes/session.js");
 const passport = require("passport");
 const inicializarPassport = require("./config/config.passport.js");
+const configDotenv = require("./config/config.js");
 
 const app = express();
 
 app.use(
   sessions({
-    secret: "codercoder123",
+    secret: configDotenv.sessions.SECRET,
     resave: true,
     saveUninitialized: true,
     store: mongoStore.create({
-      mongoUrl:
-        "mongodb+srv://joaquinjorge1998:poresterol123@cluster0.ooya4ec.mongodb.net/",
+      mongoUrl: configDotenv.MONGO_URL,
 
       ttl: 3600,
     }),
@@ -41,9 +41,7 @@ app.use(passport.session());
 app.use(express.static(path.join(__dirname, "/public")));
 
 try {
-  mongoose.connect(
-    "mongodb+srv://joaquinjorge1998:poresterol123@cluster0.ooya4ec.mongodb.net/"
-  );
+  mongoose.connect(configDotenv.MONGO_URL);
   console.log("conectado a DB");
 } catch (error) {
   console.log("no se pudo conectar a la base de datos" + error);
@@ -62,7 +60,9 @@ app.use(
 app.use("/api/carts", cartRouter);
 app.use("/", vistasRouter);
 
-const server = app.listen(8080, () => console.log("el servidor esta listo"));
+const server = app.listen(configDotenv.PORT, () =>
+  console.log("el servidor esta listo")
+);
 const io = new Server(server);
 
 const entornoChat = async () => {

@@ -6,18 +6,7 @@
   {{#each carts}}
   <div>
     <p>carts:{{this._id}}, ir al carrito: <a href="/cart/{{this._id}}">click aqui</a></p>
-      {{#each this.products}}
-     
-      
-     
-
-     <h3>producto:{{this.product.title}} </h3>
-    <h3>precio:{{this.product.price}} </h3>
-      <h3>cantidad:{{this.quantity}} </h3>
     
-
-    
-      {{/each}}
     {{!-- <li id="producto-{{_id}}">{{title}}</li></div> --}}
   {{/each}}
 </div>
