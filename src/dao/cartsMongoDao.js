@@ -5,10 +5,7 @@ class CartsMongoDAO {
     return await cartsModelo.paginate(...props);
   }
   async getp({ ...props }) {
-    return await cartsModelo
-      .find({ ...props })
-      .populate("products.product")
-      .lean();
+    return await cartsModelo.find({ ...props });
   }
 
   async getBy({ ...props }) {

@@ -131,7 +131,7 @@ class VistasController {
     res.setHeader("Content-Type", "text/html");
     res
       .status(200)
-      .render("registro", { error, login: req.session.usuario ? true : false });
+      .render("registro", { error, login: req.session.usuario ? true : false,estilo:"stylesHome" });
   }
 }
 module.exports = VistasController;

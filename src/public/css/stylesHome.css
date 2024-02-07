@@ -10,14 +10,7 @@ a {
 }
 
 /* Estilo general para el cuerpo de la página */
-body {
-    background-color: #f4f4f4;
-    /* Color de fondo */
-    font-family: 'Arial', sans-serif;
-    /* Tipo de fuente predeterminado */
-    color: #333;
-    /* Color de letra predeterminado */
-}
+
 
 /* Estilo para las etiquetas de encabezado h2 */
 h2 {
@@ -89,3 +82,68 @@ a {
       color: gray;
       margin-right: 20px;
     }
+
+ 
+      .formulario-registro {
+        background-color: #fff; /* Color de fondo del formulario */
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        max-width: 300px;
+        width: 100%;
+        margin: auto;
+        margin-top: 80px;
+      }
+      .campo-formulario {
+        margin-bottom: 20px;
+      }
+      .campo-formulario label {
+        display: block;
+        margin-bottom: 5px;
+        font-weight: bold;
+      }
+      .campo-formulario input {
+        width: 100%;
+        padding: 10px;
+        font-size: 16px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        box-sizing: border-box;
+      }
+      .campo-formulario input[type="submit"] {
+        background-color: #007bff;
+        color: #fff;
+        border: none;
+        padding: 10px 0;
+        font-size: 18px;
+        cursor: pointer;
+        border-radius: 5px;
+        width: 100%;
+      }
+      .mensaje-error {
+        color: red;
+        margin-bottom: 20px;
+      }
+
+      .menu {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        
+        background-color: #333; /* Color de fondo */
+      }
+      
+      .menu li {
+        padding: 10px 20px;
+      }
+      
+      .menu li a {
+        text-decoration: none;
+        color: white;
+      }
+
+      .menu li a:hover {
+        color: #00FFFF; /* Color de texto al hacer hover */
+      }

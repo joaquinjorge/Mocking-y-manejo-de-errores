@@ -30,11 +30,15 @@ const auth1 = (permisos = []) =>
   };
 
 productsRouter.get("/", ProductsController.getProducts);
-productsRouter.post("/", ProductsController.createProducts);
+productsRouter.post("/", auth1(["ADMIN"]), ProductsController.createProducts);
 
-productsRouter.put("/:id", ProductsController.updateProducts);
+productsRouter.put("/:id", auth1(["ADMIN"]), ProductsController.updateProducts);
 
-productsRouter.delete("/:pid", ProductsController.deleteProducts);
+productsRouter.delete(
+  "/:pid",
+  auth1(["ADMIN"]),
+  ProductsController.deleteProducts
+);
 
 productsRouter.get("/:pid", ProductsController.getProductsById);
 module.exports = productsRouter;

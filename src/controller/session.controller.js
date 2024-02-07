@@ -1,3 +1,5 @@
+const usuariosService = require("../repository/usuarios.services.js");
+
 class SessionController {
   constructor() {}
 
@@ -8,6 +10,7 @@ class SessionController {
       edad: req.user.age,
       apellido: req.user.last_name,
       rol: req.user.role,
+      cart: req.user.cart,
     };
     console.log(req.session.usuario);
     res.redirect("/products");
@@ -19,9 +22,11 @@ class SessionController {
         error: "no hay un usuario logueado actualmente",
       });
     } else {
-      res
-        .status(200)
-        .json({ status: "OK", usuarioActual: req.session.usuario });
+      let usuario = await usuariosService.getUsuariosDto(
+        req.session.usuario.email
+      );
+      console.log(usuario);
+      res.status(200).json({ currentUser: usuario });
     }
   }
 

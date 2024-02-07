@@ -2,13 +2,18 @@ const mongoose = require("mongoose");
 const cartsModelo = require("../dao/models/carts.js");
 const cartsService = require("../services/carts.service.js");
 const productsService = require("../services/products.service.js");
+const usuariosModelo = require("../dao/models/usuarios.js");
+const ticketModelo = require("../dao/models/ticket.js");
+const { v4: uuidv4 } = require("uuid");
+const ticketsService = require("../services/ticket.service.js");
+const usuariosService = require("../repository/usuarios.services.js");
 
 class CartsController {
   constructor() {}
 
   static async getCarts(req, res) {
     let carritos = [];
-    products;
+
     try {
       carritos = await cartsService.getCart({ deleted: false });
     } catch (error) {
@@ -229,6 +234,79 @@ class CartsController {
       } else {
         res.status(400).json({ error: "No se encontró el carrito" });
       }
+    } catch (error) {
+      res.status(500).json({
+        error:
+          `Error inesperado en el servidor - Intente más tarde, o contacte a su administrador` +
+          error.message,
+      });
+    }
+  }
+
+  static async purchaseCart(req, res) {
+    try {
+      let { cid } = req.params;
+      let usuario = await usuariosService.getUsuarioById({
+        email: req.session.usuario.email,
+      });
+
+      if (!mongoose.isValidObjectId(cid)) {
+        res.setHeader("Content-Type", "application/json");
+        return res.status(400).json({ error: `Indique un id válido` });
+      }
+
+      if (cid !== usuario.cart._id.toString()) {
+        return res.status(400).json({
+          error: `el carrito no pertenece al usuario ${req.session.usuario.email}`,
+        });
+      }
+      const cart = await cartsService.getCartById({ _id: cid });
+      const productsToPurchase = cart.products;
+
+      const productsNotPurchased = [];
+      const productsPurchased = [];
+
+      for (const item of productsToPurchase) {
+        const product = await productsService.getProductById({
+          _id: item.product._id,
+        });
+        if (product.stock >= item.quantity) {
+          await productsService.updateProduct(
+            { _id: product._id },
+            {
+              $inc: { stock: -item.quantity },
+            }
+          );
+          productsPurchased.push(item);
+        } else {
+          productsNotPurchased.push(item);
+        }
+      }
+
+      await cartsService.updateCart(
+        { _id: cid },
+        { $set: { products: productsNotPurchased } }
+      );
+
+      let totalAmount = 0;
+
+      for (const item of productsPurchased) {
+        totalAmount += item.product.price * item.quantity;
+      }
+      const uniqueId = uuidv4().toString();
+
+      const newTicket = {
+        code: uniqueId,
+
+        amount: totalAmount,
+        purchaser: req.session.usuario.email,
+      };
+      ticketsService.createTicket(newTicket);
+      if (productsNotPurchased.length > 0) {
+        return res.status(200).json({ productsNotPurchased });
+      }
+
+      res.status(200).json({ newTicket });
     } catch (error) {
       res.status(500).json({
         error:

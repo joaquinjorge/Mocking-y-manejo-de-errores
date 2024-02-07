@@ -43,9 +43,22 @@ cartRouter.get("/", CartsController.getCarts);
 
 cartRouter.get("/:cid", CartsController.getCartsById);
 
-cartRouter.post("/:cid/product/:pid", CartsController.addProductToCart);
-cartRouter.delete("/:cid/product/:pid", CartsController.deleteProductCart);
+cartRouter.post(
+  "/:cid/product/:pid",
+  auth1(["USUARIO", "ADMIN"]),
+  CartsController.addProductToCart
+);
+cartRouter.delete(
+  "/:cid/product/:pid",
+  auth1(["USUARIO", "ADMIN"]),
+  CartsController.deleteProductCart
+);
 
-cartRouter.delete("/:cid", CartsController.deleteCart);
+cartRouter.delete("/:cid", auth1(["ADMIN"]), CartsController.deleteCart);
+cartRouter.post(
+  "/:cid/purchase",
+  auth1(["USUARIO", "ADMIN"]),
+  CartsController.purchaseCart
+);
 
 module.exports = cartRouter;

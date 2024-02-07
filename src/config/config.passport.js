@@ -11,6 +11,7 @@ const local = require("passport-local");
 const github = require("passport-github2");
 const cartsModelo = require("../dao/models/carts.js");
 const configDotenv = require("./config.js");
+const usuariosService = require("../repository/usuarios.services.js");
 
 const inicializarPassport = () => {
   passport.use(
@@ -24,7 +25,7 @@ const inicializarPassport = () => {
       async (accessToken, refreshToken, profile, done) => {
         try {
           // console.log(profile)
-          let usuario = await usuariosModelo.findOne({
+          let usuario = await usuariosService.getUsuarioById({
             email: profile._json.email,
           });
           if (!usuario) {
@@ -36,7 +37,7 @@ const inicializarPassport = () => {
               cart: cartId,
             };
 
-            usuario = await usuariosModelo.create(nuevoUsuario);
+            usuario = await usuariosService.createUsuario(nuevoUsuario);
           }
           return done(null, usuario);
         } catch (error) {
@@ -69,7 +70,7 @@ const inicializarPassport = () => {
             return done(null, false);
           }
 
-          let existe = await usuariosModelo.findOne({ email });
+          let existe = await usuariosService.getUsuarioById({ email });
           if (existe) {
             // return res.redirect(`/registro?error=Existen usuarios con email ${email} en la BD`)
             return done(null, false, {
@@ -84,7 +85,7 @@ const inicializarPassport = () => {
           try {
             const newCart = await cartsModelo.create({ products: [] });
             const cartId = newCart._id;
-            usuario = await usuariosModelo.create({
+            usuario = await usuariosService.createUsuario({
               first_name: nombre,
               email,
               password,
@@ -123,9 +124,10 @@ const inicializarPassport = () => {
 
           // password=crypto.createHmac("sha256", "codercoder123").update(password).digest("hex")
 
-          let usuario = await usuariosModelo
-            .findOne({ email: username })
-            .lean();
+          let usuario = await usuariosService.getUsuarioById({
+            email: username,
+          });
+
           if (!usuario) {
             // return res.redirect(`/login?error=credenciales incorrectas`)
             return done(null, false, { message: `Credenciales incorrectas` });
@@ -153,7 +155,7 @@ const inicializarPassport = () => {
   });
 
   passport.deserializeUser(async (id, done) => {
-    let usuario = await usuariosModelo.findById(id);
+    let usuario = await usuariosService.getUsuarioById({ _id: id });
     return done(null, usuario);
   });
 }; // fin inicializarPassport
