@@ -1,10 +1,15 @@
 <h2>Product Page</h2>
 <hr />
 <h2>Productos:</h2>
-<h3>Bienvenido:{{user.nombre}}--- su rol es :{{user.rol}}</h3>
+<h3>Bienvenido:{{user.nombre}}--- su rol es :{{user.rol}}--- <a href="/cart/{{user.cart._id}}">ir al carrito</a></h3>
 <ul>
   {{#each productos}}
-    <li>{{this.title}}</li>
+    <li>nombre:{{this.title}}</li>
+     <li>$:{{this.price}}</li>
+       <form action="/carts/{{../user.cart._id}}/products/{{this._id}}" method="post">
+    <input type="number" name="quantity" min="1" value="1">
+    <button type="submit">Agregar al carrito</button>
+  </form>
   {{/each}}
 </ul>
 

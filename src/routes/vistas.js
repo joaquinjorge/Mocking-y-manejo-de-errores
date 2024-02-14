@@ -89,6 +89,15 @@ vistasRouter.get(
   VistasController.getPerfil
 );
 vistasRouter.get("/login", auth2, VistasController.getlogin);
-
+vistasRouter.post(
+  "/carts/:cid/products/:pid",
+  auth1(["USUARIO", "ADMIN"]),
+  VistasController.addProductToCart
+);
+vistasRouter.post(
+  "/cart/:cid/product/:pid",
+  auth1(["USUARIO", "ADMIN"]),
+  VistasController.deleteProductCart
+);
 vistasRouter.get("/registro", auth2, VistasController.getRegistro);
 module.exports = vistasRouter;

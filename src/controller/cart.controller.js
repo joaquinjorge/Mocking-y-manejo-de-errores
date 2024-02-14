@@ -265,7 +265,11 @@ class CartsController {
 
       const productsNotPurchased = [];
       const productsPurchased = [];
-
+      if (cart.products.length === 0) {
+        return res.status(400).json({
+          error: `el carrito no tiene productos`,
+        });
+      }
       for (const item of productsToPurchase) {
         const product = await productsService.getProductById({
           _id: item.product._id,

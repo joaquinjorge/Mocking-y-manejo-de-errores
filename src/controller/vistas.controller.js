@@ -1,6 +1,7 @@
 const productsService = require("../services/products.service.js");
 const mongoose = require("mongoose");
 const cartsModelo = require("../dao/models/carts.js");
+const cartsService = require("../services/carts.service.js");
 class VistasController {
   constructor() {}
   static async getProducts(req, res) {
@@ -129,9 +130,168 @@ class VistasController {
     let { error } = req.query;
 
     res.setHeader("Content-Type", "text/html");
-    res
-      .status(200)
-      .render("registro", { error, login: req.session.usuario ? true : false,estilo:"stylesHome" });
+    res.status(200).render("registro", {
+      error,
+      login: req.session.usuario ? true : false,
+      estilo: "stylesHome",
+    });
+  }
+
+  static async addProductToCart(req, res) {
+    let { cid, pid } = req.params;
+
+    if (!mongoose.isValidObjectId(cid) || !mongoose.isValidObjectId(pid)) {
+      res.setHeader("Content-Type", "application/json");
+      return res.status(400).json({ error: `Indique un id válido` });
+    }
+
+    let existeCarrito;
+    try {
+      existeCarrito = await cartsService.getCartById({
+        deleted: false,
+        _id: cid,
+      });
+    } catch (error) {
+      res.setHeader("Content-Type", "application/json");
+      return res
+        .status(500)
+        .json({ error: `Error al buscar carrito`, message: error.message });
+    }
+
+    if (!existeCarrito) {
+      res.setHeader("Content-Type", "application/json");
+      return res.status(400).json({ error: `No existe carrito con id ${cid}` });
+    }
+
+    let existeProducto;
+    try {
+      existeProducto = await productsService.getProductById({
+        deleted: false,
+        _id: pid,
+      });
+    } catch (error) {
+      res.setHeader("Content-Type", "application/json");
+      return res
+        .status(500)
+        .json({ error: `Error al buscar producto`, message: error.message });
+    }
+
+    if (!existeProducto) {
+      res.setHeader("Content-Type", "application/json");
+      return res
+        .status(400)
+        .json({ error: `No existe producto con id ${pid}` });
+    }
+
+    let resultado;
+    let cantidad = 1;
+    if (req.body.quantity) {
+      cantidad = req.body.quantity;
+    }
+
+    let indice = existeCarrito.products.findIndex(
+      (p) => p.product._id == existeProducto._id.toString()
+    );
+    if (indice === -1) {
+      existeCarrito.products.push({
+        product: existeProducto._id,
+        quantity: cantidad,
+      });
+    } else {
+      existeCarrito.products[indice].quantity =
+        existeCarrito.products[indice].quantity + cantidad;
+    }
+
+    try {
+      resultado = await cartsService.updateCart(
+        { deleted: false, _id: cid },
+        existeCarrito
+      );
+
+      if (resultado.modifiedCount > 0) {
+        return res.redirect("/cart/" + cid);
+      } else {
+        res.setHeader("Content-Type", "application/json");
+        return res
+          .status(200)
+          .json({ message: "No se modificó ningún producto" });
+      }
+    } catch (error) {
+      res.setHeader("Content-Type", "application/json");
+      return res
+        .status(500)
+        .json({ error: `Error inesperado`, message: error.message });
+    }
+  }
+
+  static async deleteProductCart(req, res) {
+    let { cid, pid } = req.params;
+    if (!mongoose.isValidObjectId(cid) || !mongoose.isValidObjectId(pid)) {
+      res.setHeader("Content-Type", "application/json");
+      return res.status(400).json({ error: `Indique un id válido` });
+    }
+
+    let existeCarrito;
+    try {
+      existeCarrito = await cartsService.getCartById({
+        deleted: false,
+        _id: cid,
+      });
+    } catch (error) {
+      res.setHeader("Content-Type", "application/json");
+      return res
+        .status(500)
+        .json({ error: `Error al buscar carrito`, message: error.message });
+    }
+
+    if (!existeCarrito) {
+      res.setHeader("Content-Type", "application/json");
+      return res.status(400).json({ error: `No existe carrito con id ${cid}` });
+    }
+
+    let existeProducto;
+    try {
+      existeProducto = await productsService.getProductById({
+        deleted: false,
+        _id: pid,
+      });
+    } catch (error) {
+      res.setHeader("Content-Type", "application/json");
+      return res
+        .status(500)
+        .json({ error: `Error al buscar producto`, message: error.message });
+    }
+
+    if (!existeProducto) {
+      res.setHeader("Content-Type", "application/json");
+      return res
+        .status(400)
+        .json({ error: `No existe producto con id ${pid}` });
+    }
+
+    let resultado;
+
+    try {
+      resultado = await cartsService.updateCart(
+        { deleted: false, _id: cid, "products.product": pid },
+        { $pull: { products: { product: pid } } }
+      );
+
+      if (resultado.modifiedCount > 0) {
+        return res.redirect("/cart/" + cid);
+      } else {
+        res.setHeader("Content-Type", "application/json");
+        return res
+          .status(200)
+          .json({ message: "No se modificó ningún producto" });
+      }
+    } catch (error) {
+      res.setHeader("Content-Type", "application/json");
+      return res
+        .status(500)
+        .json({ error: `Error inesperado`, message: error.message });
+    }
   }
 }
+
 module.exports = VistasController;

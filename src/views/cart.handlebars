@@ -15,9 +15,18 @@
     <h3>precio:{{this.product.price}} </h3>
       <h3>cantidad:{{this.quantity}} </h3>
     
-
+     <form action="/cart/{{../existe._id}}/product/{{this.product._id}}" method="post">
+      <input type="hidden" name="_method" value="delete">
+      <input type="submit" value="Delete">
+  </form>
     
       {{/each}}
+
+      <form action="/api/carts/{{existe._id}}/purchase" method="post">
+      
+      <input type="submit" value="Finaliar Compra">
+  </form>
+      <a href="/products">seguir comprando</a>
     {{!-- <li id="producto-{{_id}}">{{title}}</li></div> --}}
  
 </div>
