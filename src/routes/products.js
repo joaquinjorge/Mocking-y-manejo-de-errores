@@ -30,7 +30,8 @@ const auth1 = (permisos = []) =>
   };
 
 productsRouter.get("/", ProductsController.getProducts);
-productsRouter.post("/", auth1(["ADMIN"]), ProductsController.createProducts);
+productsRouter.get("/mockingproducts", ProductsController.mockingProducts);
+productsRouter.post("/", ProductsController.createProducts);
 
 productsRouter.put("/:id", auth1(["ADMIN"]), ProductsController.updateProducts);
 

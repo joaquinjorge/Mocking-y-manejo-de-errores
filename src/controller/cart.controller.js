@@ -7,6 +7,8 @@ const ticketModelo = require("../dao/models/ticket.js");
 const { v4: uuidv4 } = require("uuid");
 const ticketsService = require("../services/ticket.service.js");
 const usuariosService = require("../repository/usuarios.services.js");
+const errors = require("../customError.js");
+const errorHandler = require("../errorHandler.js");
 
 class CartsController {
   constructor() {}
@@ -25,8 +27,15 @@ class CartsController {
     let id = req.params.cid;
 
     if (!mongoose.isValidObjectId(id)) {
+      const error = new Error(errors.INVALID_ID);
+      const { message, status } = errorHandler(
+        error,
+        `el id: ${id} no es valido`
+      );
       res.setHeader("Content-Type", "application/json");
-      return res.status(400).json({ error: `Indique un id válido` });
+      return res
+        .status(status)
+        .json({ error: errors.INVALID_ID, detalle: message });
     }
 
     let existe;
@@ -41,8 +50,10 @@ class CartsController {
     }
 
     if (!existe) {
+      const error = new Error(errors.CART_NOT_FOUND);
+      const { message, status } = errorHandler(error,`el carrito con id ${id} no se encontro en DB`);
       res.setHeader("Content-Type", "application/json");
-      return res.status(400).json({ error: `No existe carrito con id ${id}` });
+      return res.status(status).json({ error:errors.CART_NOT_FOUND,detalle:message });
     }
 
     res.setHeader("Content-Type", "application/json");
@@ -63,8 +74,15 @@ class CartsController {
     let { cid, pid } = req.params;
 
     if (!mongoose.isValidObjectId(cid) || !mongoose.isValidObjectId(pid)) {
+      const error = new Error(errors.INVALID_ID);
+      const { message, status } = errorHandler(
+        error,
+        `el cid: ${cid} o el pid: ${pid} no son validos`
+      );
       res.setHeader("Content-Type", "application/json");
-      return res.status(400).json({ error: `Indique un id válido` });
+      return res
+        .status(status)
+        .json({ error: errors.INVALID_ID, detalle: message });
     }
 
     let existeCarrito;
@@ -81,8 +99,10 @@ class CartsController {
     }
 
     if (!existeCarrito) {
+      const error = new Error(errors.CART_NOT_FOUND);
+      const { message, status } = errorHandler(error,`el carrito con id ${cid} no se encontro en DB`);
       res.setHeader("Content-Type", "application/json");
-      return res.status(400).json({ error: `No existe carrito con id ${cid}` });
+      return res.status(status).json({ error:errors.CART_NOT_FOUND,detalle:message });
     }
 
     let existeProducto;
@@ -99,10 +119,10 @@ class CartsController {
     }
 
     if (!existeProducto) {
+      const error = new Error(errors.PRODUCT_NOT_FOUND);
+      const { message, status } = errorHandler(error,`el producto con id ${pid} no se encontro en DB`);
       res.setHeader("Content-Type", "application/json");
-      return res
-        .status(400)
-        .json({ error: `No existe producto con id ${pid}` });
+      return res.status(status).json({ error:errors.PRODUCT_NOT_FOUND,detalle:message });
     }
 
     let resultado;
@@ -149,8 +169,15 @@ class CartsController {
   static async deleteProductCart(req, res) {
     let { cid, pid } = req.params;
     if (!mongoose.isValidObjectId(cid) || !mongoose.isValidObjectId(pid)) {
+      const error = new Error(errors.INVALID_ID);
+      const { message, status } = errorHandler(
+        error,
+        `el cid: ${cid} o el pid: ${pid} no son validos`
+      );
       res.setHeader("Content-Type", "application/json");
-      return res.status(400).json({ error: `Indique un id válido` });
+      return res
+        .status(status)
+        .json({ error: errors.INVALID_ID, detalle: message });
     }
 
     let existeCarrito;
@@ -167,8 +194,10 @@ class CartsController {
     }
 
     if (!existeCarrito) {
+      const error = new Error(errors.CART_NOT_FOUND);
+      const { message, status } = errorHandler(error,`el producto con id ${cid} no se encontro en DB`);
       res.setHeader("Content-Type", "application/json");
-      return res.status(400).json({ error: `No existe carrito con id ${cid}` });
+      return res.status(status).json({ error:errors.CART_NOT_FOUND,detalle:message });
     }
 
     let existeProducto;
@@ -185,10 +214,10 @@ class CartsController {
     }
 
     if (!existeProducto) {
+      const error = new Error(errors.PRODUCT_NOT_FOUND);
+      const { message, status } = errorHandler(error,`el producto con id ${pid} no se encontro en DB`);
       res.setHeader("Content-Type", "application/json");
-      return res
-        .status(400)
-        .json({ error: `No existe producto con id ${pid}` });
+      return res.status(status).json({ error:errors.PRODUCT_NOT_FOUND,detalle:message });
     }
 
     let resultado;
@@ -218,8 +247,15 @@ class CartsController {
   static async deleteCart(req, res) {
     const carritoId = req.params.cid;
     if (!mongoose.isValidObjectId(carritoId)) {
+      const error = new Error(errors.INVALID_ID);
+      const { message, status } = errorHandler(
+        error,
+        `el id: ${carritoId } no es valido`
+      );
       res.setHeader("Content-Type", "application/json");
-      return res.status(400).json({ error: `Indique un id válido` });
+      return res
+        .status(status)
+        .json({ error: errors.INVALID_ID, detalle: message });
     }
     try {
       const resultado = await cartsService.updateCart(
@@ -251,8 +287,15 @@ class CartsController {
       });
 
       if (!mongoose.isValidObjectId(cid)) {
-        res.setHeader("Content-Type", "application/json");
-        return res.status(400).json({ error: `Indique un id válido` });
+        const error = new Error(errors.INVALID_ID);
+      const { message, status } = errorHandler(
+        error,
+        `el id: ${cid } no es valido`
+      );
+      res.setHeader("Content-Type", "application/json");
+      return res
+        .status(status)
+        .json({ error: errors.INVALID_ID, detalle: message });
       }
 
       if (cid !== usuario.cart._id.toString()) {

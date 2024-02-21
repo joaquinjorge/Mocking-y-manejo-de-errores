@@ -1,7 +1,9 @@
 const productosModelo = require("../dao/models/products.js");
 const mongoose = require("mongoose");
 const productsService = require("../services/products.service.js");
-
+const errors = require("../customError.js");
+const errorHandler = require("../errorHandler.js");
+const generaProducto = require("../mocks/products.mocks.js");
 class ProductsController {
   constructor() {}
 
@@ -50,8 +52,15 @@ class ProductsController {
   static async getProductsById(req, res) {
     let id = req.params.pid;
     if (!mongoose.Types.ObjectId.isValid(id)) {
+      const error = new Error(errors.INVALID_ID);
+      const { message, status } = errorHandler(
+        error,
+        `el id: ${id} no es valido`
+      );
       res.setHeader("Content-Type", "application/json");
-      return res.status(400).json({ error: `Ingrese un id válido...!!!` });
+      return res
+        .status(status)
+        .json({ error: errors.INVALID_ID, detalle: message });
     }
     let productos = await productsService.getProductById({
       deleted: false,
@@ -91,15 +100,27 @@ class ProductsController {
     }
 
     if (existe) {
+      const error = new Error(errors.PRODUCT_ALREADY_EXISTS);
+      const { message, status } = errorHandler(
+        error,
+        `el producto con code :${code} ya  existe`
+      );
       res.setHeader("Content-Type", "application/json");
       return res
-        .status(400)
-        .json({ error: `El usuario con code ${code} ya existe en BD...!!!` });
+        .status(status)
+        .json({ error: errors.PRODUCT_ALREADY_EXISTS, detalle: message });
     }
 
     if (!title || !price || !description || !code || !stock || !category) {
+      const error = new Error(errors.INCOMPLETE);
+      const { message, status } = errorHandler(
+        error,
+        `los campos title,price,description,code,stock,category son obligatorios`
+      );
       res.setHeader("Content-Type", "application/json");
-      return res.status(400).json({ error: `complete todos los campos` });
+      return res
+        .status(status)
+        .json({ error: errors.INCOMPLETE, detalle: message });
     }
 
     if (title && typeof title !== "string") {
@@ -150,11 +171,15 @@ class ProductsController {
       propiedadesPermitidas.includes(propiedad)
     );
     if (!valido) {
+      const error = new Error(errors.INVALID_PROPS);
+      const { message, status } = errorHandler(
+        error,
+        `propiedades invalidas.   propiedades permitidas:title,price,description,code,stock,status,category,thumbnails,deleted, `
+      );
       res.setHeader("Content-Type", "application/json");
-      return res.status(400).json({
-        error: `No se aceptan algunas propiedades`,
-        propiedadesPermitidas,
-      });
+      return res
+        .status(status)
+        .json({ error: errors.INVALID_PROPS, detalle: message });
     }
     try {
       let productoNuevo = await productsService.createProduct(nuevoProducto);
@@ -173,8 +198,12 @@ class ProductsController {
   static async updateProducts(req, res) {
     let { id } = req.params;
     if (!mongoose.Types.ObjectId.isValid(id)) {
+      const error = new Error(errors.INVALID_ID, `el id ${id} es invalido`);
+      const { message, status } = errorHandler(error);
       res.setHeader("Content-Type", "application/json");
-      return res.status(400).json({ error: `Ingrese un id válido...!!!` });
+      return res
+        .status(status)
+        .json({ error: errors.INVALID_ID, detalle: message });
     }
     let productos = await productsService.getProductById({ _id: id });
 
@@ -201,11 +230,15 @@ class ProductsController {
       propiedadesPermitidas.includes(propiedad)
     );
     if (!valido) {
+      const error = new Error(errors.INVALID_PROPS);
+      const { message, status } = errorHandler(
+        error,
+        `propiedades invalidas.   propiedades permitidas:title,price,description,code,stock,status,category,thumbnails,deleted, `
+      );
       res.setHeader("Content-Type", "application/json");
-      return res.status(400).json({
-        error: `No se aceptan algunas propiedades`,
-        propiedadesPermitidas,
-      });
+      return res
+        .status(status)
+        .json({ error: errors.INVALID_PROPS, detalle: message });
     }
 
     if (req.body.title && typeof req.body.title !== "string") {
@@ -270,16 +303,25 @@ class ProductsController {
     let id = req.params.pid;
 
     if (!mongoose.Types.ObjectId.isValid(id)) {
+      const error = new Error(errors.INVALID_ID, `el id ${id} es invalido`);
+      const { message, status } = errorHandler(error);
       res.setHeader("Content-Type", "application/json");
-      return res.status(400).json({ error: `Ingrese un id válido...!!!` });
+      return res
+        .status(status)
+        .json({ error: errors.INVALID_ID, detalle: message });
     }
     let productos = await productsService.getProductById({ _id: id });
 
     if (!productos) {
+      const error = new Error(
+        errors.PRODUCT_NOT_FOUND,
+        `El producto con id ${id} no se encontro en la DB`
+      );
+      const { message, status } = errorHandler(error);
       res.setHeader("Content-Type", "application/json");
       return res
-        .status(400)
-        .json({ error: `no existe el producto con id ${id}` });
+        .status(status)
+        .json({ error: errors.PRODUCT_NOT_FOUND, detalle: message });
     }
     let productoEliminado;
     try {
@@ -298,6 +340,22 @@ class ProductsController {
       return res.status(500).json({
         error: `Error inesperado en el servidor - Intente más tarde, o contacte a su administrador`,
         detalle: error.message,
+      });
+    }
+  }
+  static async mockingProducts(req, res) {
+    try {
+      let productos = [];
+      for (let i = 0; i < 100; i++) {
+        productos.push(generaProducto());
+      }
+      res.setHeader("Content-Type", "application/json");
+      return res.status(200).json({ status: "success", payload: productos });
+    } catch (error) {
+      console.log(error.message);
+      res.setHeader("Content-Type", "application/json");
+      return res.status(500).json({
+        error: `Error inesperado en el servidor - Intente más tarde, o contacte a su administrador`,
       });
     }
   }
