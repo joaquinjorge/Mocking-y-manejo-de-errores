@@ -7,15 +7,15 @@ const errorHandler = (error,description) => {
   switch (error.message) {
     case errors.INVALID_PROPS:
       message =  description;
-      status = 404;
+      status = 422;
       break;
     case errors.INCOMPLETE:
       message =  description;
-      status = 404;
+      status = 400;
       break;
     case errors.INVALID_ID:
       message = description;
-      status = 404;
+      status = 422;
       break;
     case errors.PRODUCT_NOT_FOUND:
       message =  description;
