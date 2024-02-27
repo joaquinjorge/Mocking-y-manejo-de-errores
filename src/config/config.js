@@ -9,6 +9,7 @@ const configDotenv = {
   PORT: process.env.PORT || 3000,
 
   MONGO_URL: process.env.MONGO_URL,
+  MODE: process.env.MODE,
 
   sessions: {
     SECRET: process.env.SECRET,

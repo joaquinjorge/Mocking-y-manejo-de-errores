@@ -12,7 +12,7 @@ class SessionController {
       rol: req.user.role,
       cart: req.user.cart,
     };
-    console.log(req.session.usuario);
+    req.logger.info(JSON.stringify(req.session.usuario));
     res.redirect("/products");
   }
   static async getCurrentSession(req, res) {
@@ -25,7 +25,7 @@ class SessionController {
       let usuario = await usuariosService.getUsuariosDto(
         req.session.usuario.email
       );
-      console.log(usuario);
+      req.logger.info(JSON.stringify(usuario))
       res.status(200).json({ currentUser: usuario });
     }
   }

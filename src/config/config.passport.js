@@ -24,7 +24,7 @@ const inicializarPassport = () => {
       },
       async (accessToken, refreshToken, profile, done) => {
         try {
-          // console.log(profile)
+          
           let usuario = await usuariosService.getUsuarioById({
             email: profile._json.email,
           });
@@ -55,7 +55,7 @@ const inicializarPassport = () => {
       },
       async (req, username, password, done) => {
         try {
-          console.log("Estrategia local registro de Passport...!!!");
+          req.logger.info("Estrategia local registro de Passport...!!!");
           let { nombre, email, apellido, edad } = req.body;
           if (!nombre || !email || !password || !apellido || !edad) {
             // return res.redirect('/registro?error=Complete todos los datos')
@@ -64,7 +64,7 @@ const inicializarPassport = () => {
 
           let regMail =
             /^(([^<>()\[\]\\.,;:\s@”]+(\.[^<>()\[\]\\.,;:\s@”]+)*)|(“.+”))@((\[[0–9]{1,3}\.[0–9]{1,3}\.[0–9]{1,3}\.[0–9]{1,3}])|(([a-zA-Z\-0–9]+\.)+[a-zA-Z]{2,}))$/;
-          console.log(regMail.test(email));
+       
           if (!regMail.test(email)) {
             // return res.redirect('/registro?error=Mail con formato incorrecto...!!!')
             return done(null, false);
@@ -80,7 +80,7 @@ const inicializarPassport = () => {
 
           // password=crypto.createHmac("sha256", "codercoder123").update(password).digest("hex")
           password = creaHash(password);
-          console.log(password);
+          req.logger.info(password);
           let usuario;
           try {
             const newCart = await cartsModelo.create({ products: [] });
@@ -137,7 +137,7 @@ const inicializarPassport = () => {
             return done(null, false, { message: `Credenciales incorrectas` });
           }
 
-          console.log(Object.keys(usuario));
+          
           delete usuario.password;
           return done(null, usuario);
           // previo a devolver un usuario con done, passport graba en la req, una propiedad

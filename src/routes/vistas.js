@@ -100,4 +100,18 @@ vistasRouter.post(
   VistasController.deleteProductCart
 );
 vistasRouter.get("/registro", auth2, VistasController.getRegistro);
+
+
+
+vistasRouter.get("/loggertest", (req, res) => {
+  req.logger.debug("prueba logger funcionando...");
+  req.logger.http("prueba logger funcionando...");
+  req.logger.info("prueba logger funcionando...");
+  req.logger.warning("prueba logger funcionando...");
+  req.logger.error("prueba logger funcionando...");
+  req.logger.fatal("prueba logger funcionando...");
+  
+  res.setHeader('Content-Type', 'application/json');
+  return res.status(200).json({ message: "Mensajes de registro enviados con éxito." });
+});
 module.exports = vistasRouter;

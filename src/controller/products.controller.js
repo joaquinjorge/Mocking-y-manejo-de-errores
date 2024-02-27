@@ -42,6 +42,7 @@ class ProductsController {
         nextLink,
       });
     } catch (error) {
+      req.logger.error(error.message)
       res.status(500).json({
         error:
           `Error inesperado en el servidor - Intente más tarde, o contacte a su administrador` +
@@ -52,6 +53,7 @@ class ProductsController {
   static async getProductsById(req, res) {
     let id = req.params.pid;
     if (!mongoose.Types.ObjectId.isValid(id)) {
+      req.logger.error(`el id ${id}no es un id valido de mongoose `);
       const error = new Error(errors.INVALID_ID);
       const { message, status } = errorHandler(
         error,
@@ -92,6 +94,7 @@ class ProductsController {
     try {
       existe = await productsService.getProductById({ deleted: false, code });
     } catch (error) {
+      req.logger.error(error.message)
       res.setHeader("Content-Type", "application/json");
       return res.status(500).json({
         error: `Error inesperado en el servidor - Intente más tarde, o contacte a su administrador`,
@@ -100,6 +103,7 @@ class ProductsController {
     }
 
     if (existe) {
+      req.logger.warning("el producto ya existe")
       const error = new Error(errors.PRODUCT_ALREADY_EXISTS);
       const { message, status } = errorHandler(
         error,
@@ -112,6 +116,7 @@ class ProductsController {
     }
 
     if (!title || !price || !description || !code || !stock || !category) {
+      req.logger.error("no se completaron las propiedades necesarias")
       const error = new Error(errors.INCOMPLETE);
       const { message, status } = errorHandler(
         error,
@@ -171,6 +176,7 @@ class ProductsController {
       propiedadesPermitidas.includes(propiedad)
     );
     if (!valido) {
+      req.logger.error(" `propiedades invalidas.   propiedades permitidas:title,price,description,code,stock,status,category,thumbnails,deleted, `")
       const error = new Error(errors.INVALID_PROPS);
       const { message, status } = errorHandler(
         error,
@@ -183,11 +189,12 @@ class ProductsController {
     }
     try {
       let productoNuevo = await productsService.createProduct(nuevoProducto);
-
+      req.logger.info(JSON.stringify(nuevoProducto));
       req.io.emit("nuevoProdConMiddleware", nuevoProducto);
       res.setHeader("Content-Type", "application/json");
       res.status(200).json({ payload: productoNuevo });
     } catch (error) {
+      req.logger.error(error.message)
       res.setHeader("Content-Type", "application/json");
       return res.status(500).json({
         error: `Error inesperado en el servidor - Intente más tarde, o contacte a su administrador`,
@@ -198,6 +205,7 @@ class ProductsController {
   static async updateProducts(req, res) {
     let { id } = req.params;
     if (!mongoose.Types.ObjectId.isValid(id)) {
+      req.logger.error(`el id ${id}no es un id valido de mongoose `);
       const error = new Error(errors.INVALID_ID, `el id ${id} es invalido`);
       const { message, status } = errorHandler(error);
       res.setHeader("Content-Type", "application/json");
@@ -230,6 +238,7 @@ class ProductsController {
       propiedadesPermitidas.includes(propiedad)
     );
     if (!valido) {
+      req.logger.error(" `propiedades invalidas.   propiedades permitidas:title,price,description,code,stock,status,category,thumbnails,deleted, `")
       const error = new Error(errors.INVALID_PROPS);
       const { message, status } = errorHandler(
         error,
@@ -303,6 +312,7 @@ class ProductsController {
     let id = req.params.pid;
 
     if (!mongoose.Types.ObjectId.isValid(id)) {
+      req.logger.error(`el id ${id}no es un id valido de mongoose `);
       const error = new Error(errors.INVALID_ID, `el id ${id} es invalido`);
       const { message, status } = errorHandler(error);
       res.setHeader("Content-Type", "application/json");
@@ -313,6 +323,7 @@ class ProductsController {
     let productos = await productsService.getProductById({ _id: id });
 
     if (!productos) {
+      req.logger.error(`El producto con id ${id} no se encontro en la DB`);
       const error = new Error(
         errors.PRODUCT_NOT_FOUND,
         `El producto con id ${id} no se encontro en la DB`
@@ -328,6 +339,7 @@ class ProductsController {
       productoEliminado = await productsService.deleteProduct(id);
 
       if (productoEliminado.modifiedCount > 0) {
+        req.logger.info("producto eliminado con exito")
         req.io.emit("prodEliminado", { id });
         res.setHeader("Content-Type", "application/json");
         return res.status(200).json({ payload: "Eliminacion realizada" });
@@ -336,6 +348,7 @@ class ProductsController {
         return res.status(400).json({ error: `No se concretó la eliminacion` });
       }
     } catch (error) {
+      req.logger.error(error.message)
       res.setHeader("Content-Type", "application/json");
       return res.status(500).json({
         error: `Error inesperado en el servidor - Intente más tarde, o contacte a su administrador`,
@@ -349,10 +362,11 @@ class ProductsController {
       for (let i = 0; i < 100; i++) {
         productos.push(generaProducto());
       }
+      req.logger.info("mocking generado con exito")
       res.setHeader("Content-Type", "application/json");
       return res.status(200).json({ status: "success", payload: productos });
     } catch (error) {
-      console.log(error.message);
+     req.logger.error(error.message);
       res.setHeader("Content-Type", "application/json");
       return res.status(500).json({
         error: `Error inesperado en el servidor - Intente más tarde, o contacte a su administrador`,

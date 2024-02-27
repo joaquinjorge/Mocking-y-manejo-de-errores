@@ -10,7 +10,7 @@ sessionRouter.get(
   "/github",
   passport.authenticate("github", {}),
   (req, res) => {
-    console.log("hola");
+   req.logger.info("pasando por github authenticate ");
   }
 );
 

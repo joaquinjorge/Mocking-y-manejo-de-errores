@@ -18,7 +18,7 @@ class VistasController {
         { lean: true, limit: 5, page: pagina }
       );
     } catch (error) {
-      console.log(error);
+     req.logger.error(error.message);
       productos = [];
     }
     let user = req.session.usuario;
@@ -72,6 +72,7 @@ class VistasController {
     let id = req.params.cid;
 
     if (!mongoose.isValidObjectId(id)) {
+      req.logger.warning(`el id :${id} no es un id valido de mongoose`);
       res.setHeader("Content-Type", "application/json");
       return res.status(400).json({ error: `Indique un id válido` });
     }
@@ -141,6 +142,7 @@ class VistasController {
     let { cid, pid } = req.params;
 
     if (!mongoose.isValidObjectId(cid) || !mongoose.isValidObjectId(pid)) {
+      req.logger.warning(`el id  no es un id valido de mongoose`);
       res.setHeader("Content-Type", "application/json");
       return res.status(400).json({ error: `Indique un id válido` });
     }
@@ -227,6 +229,7 @@ class VistasController {
   static async deleteProductCart(req, res) {
     let { cid, pid } = req.params;
     if (!mongoose.isValidObjectId(cid) || !mongoose.isValidObjectId(pid)) {
+      req.logger.warning(`el id  no es un id valido de mongoose`);
       res.setHeader("Content-Type", "application/json");
       return res.status(400).json({ error: `Indique un id válido` });
     }
