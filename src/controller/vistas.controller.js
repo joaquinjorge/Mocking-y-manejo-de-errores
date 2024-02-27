@@ -18,7 +18,7 @@ class VistasController {
         { lean: true, limit: 5, page: pagina }
       );
     } catch (error) {
-     req.logger.error(error.message);
+      req.logger.error(error.message);
       productos = [];
     }
     let user = req.session.usuario;

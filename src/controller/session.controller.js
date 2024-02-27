@@ -25,7 +25,7 @@ class SessionController {
       let usuario = await usuariosService.getUsuariosDto(
         req.session.usuario.email
       );
-      req.logger.info(JSON.stringify(usuario))
+      req.logger.info(JSON.stringify(usuario));
       res.status(200).json({ currentUser: usuario });
     }
   }

@@ -42,7 +42,7 @@ class ProductsController {
         nextLink,
       });
     } catch (error) {
-      req.logger.error(error.message)
+      req.logger.error(error.message);
       res.status(500).json({
         error:
           `Error inesperado en el servidor - Intente más tarde, o contacte a su administrador` +
@@ -94,7 +94,7 @@ class ProductsController {
     try {
       existe = await productsService.getProductById({ deleted: false, code });
     } catch (error) {
-      req.logger.error(error.message)
+      req.logger.error(error.message);
       res.setHeader("Content-Type", "application/json");
       return res.status(500).json({
         error: `Error inesperado en el servidor - Intente más tarde, o contacte a su administrador`,
@@ -103,7 +103,7 @@ class ProductsController {
     }
 
     if (existe) {
-      req.logger.warning("el producto ya existe")
+      req.logger.warning("el producto ya existe");
       const error = new Error(errors.PRODUCT_ALREADY_EXISTS);
       const { message, status } = errorHandler(
         error,
@@ -116,7 +116,7 @@ class ProductsController {
     }
 
     if (!title || !price || !description || !code || !stock || !category) {
-      req.logger.error("no se completaron las propiedades necesarias")
+      req.logger.error("no se completaron las propiedades necesarias");
       const error = new Error(errors.INCOMPLETE);
       const { message, status } = errorHandler(
         error,
@@ -176,7 +176,9 @@ class ProductsController {
       propiedadesPermitidas.includes(propiedad)
     );
     if (!valido) {
-      req.logger.error(" `propiedades invalidas.   propiedades permitidas:title,price,description,code,stock,status,category,thumbnails,deleted, `")
+      req.logger.error(
+        " `propiedades invalidas.   propiedades permitidas:title,price,description,code,stock,status,category,thumbnails,deleted, `"
+      );
       const error = new Error(errors.INVALID_PROPS);
       const { message, status } = errorHandler(
         error,
@@ -194,7 +196,7 @@ class ProductsController {
       res.setHeader("Content-Type", "application/json");
       res.status(200).json({ payload: productoNuevo });
     } catch (error) {
-      req.logger.error(error.message)
+      req.logger.error(error.message);
       res.setHeader("Content-Type", "application/json");
       return res.status(500).json({
         error: `Error inesperado en el servidor - Intente más tarde, o contacte a su administrador`,
@@ -238,7 +240,9 @@ class ProductsController {
       propiedadesPermitidas.includes(propiedad)
     );
     if (!valido) {
-      req.logger.error(" `propiedades invalidas.   propiedades permitidas:title,price,description,code,stock,status,category,thumbnails,deleted, `")
+      req.logger.error(
+        " `propiedades invalidas.   propiedades permitidas:title,price,description,code,stock,status,category,thumbnails,deleted, `"
+      );
       const error = new Error(errors.INVALID_PROPS);
       const { message, status } = errorHandler(
         error,
@@ -339,7 +343,7 @@ class ProductsController {
       productoEliminado = await productsService.deleteProduct(id);
 
       if (productoEliminado.modifiedCount > 0) {
-        req.logger.info("producto eliminado con exito")
+        req.logger.info("producto eliminado con exito");
         req.io.emit("prodEliminado", { id });
         res.setHeader("Content-Type", "application/json");
         return res.status(200).json({ payload: "Eliminacion realizada" });
@@ -348,7 +352,7 @@ class ProductsController {
         return res.status(400).json({ error: `No se concretó la eliminacion` });
       }
     } catch (error) {
-      req.logger.error(error.message)
+      req.logger.error(error.message);
       res.setHeader("Content-Type", "application/json");
       return res.status(500).json({
         error: `Error inesperado en el servidor - Intente más tarde, o contacte a su administrador`,
@@ -362,11 +366,11 @@ class ProductsController {
       for (let i = 0; i < 100; i++) {
         productos.push(generaProducto());
       }
-      req.logger.info("mocking generado con exito")
+      req.logger.info("mocking generado con exito");
       res.setHeader("Content-Type", "application/json");
       return res.status(200).json({ status: "success", payload: productos });
     } catch (error) {
-     req.logger.error(error.message);
+      req.logger.error(error.message);
       res.setHeader("Content-Type", "application/json");
       return res.status(500).json({
         error: `Error inesperado en el servidor - Intente más tarde, o contacte a su administrador`,
