@@ -1,0 +1,18 @@
+<h2>Repita su nueva contraseña:</h2>
+<hr>
+<form action="/api/sessions/recupero03" method="post">
+  {{#if error}}
+        <div style="color: red;">{{error}}</div>
+    {{/if}}
+
+    {{#if mensaje}}
+        <div style="color: green;">{{mensaje}}</div>
+    {{/if}}
+
+    <input type="password" name="password" id="password">
+    <input type="password" name="password2" id="password2">
+    <input type="hidden" name="token" id="token" value={{token}} >
+    <br>
+    <input type="submit" value="Resetear">
+</form>
+{{>menu}}

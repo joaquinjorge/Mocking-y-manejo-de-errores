@@ -1,0 +1,34 @@
+<h2>agregar producto:</h2>
+<hr>
+<form action="/api/products" method="post" class="formulario-registro">
+
+
+ 
+    <input type="text" name="title"  placeholder="Ingresa el titulo" required>
+ 
+
+ 
+    <input type="text" name="description"  placeholder="Ingresa la descripcion" required>
+
+
+ 
+    <input type="number" name="price"  placeholder="Ingresa el precio" required>
+
+
+ 
+    <input type="number" name="stock"  placeholder="Ingresa el stock" required>
+ 
+
+  
+    <input type="text" name="code"  placeholder="Ingresa el codigo" required>
+ 
+
+   
+    <input type="text" name="category" placeholder="Ingresa la categoria" required>
+  
+
+ 
+    <input type="submit" value="crear">
+
+</form>
+{{>menu}}

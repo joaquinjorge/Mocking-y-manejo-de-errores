@@ -16,6 +16,7 @@ const productosEsquema = new mongoose.Schema(
     category: String,
     price: Number,
     stock: Number,
+    owner: String,
     deleted: {
       type: Boolean,
       default: false,

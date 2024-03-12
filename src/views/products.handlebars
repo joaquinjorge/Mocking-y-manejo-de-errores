@@ -2,8 +2,15 @@
 <hr />
 <h2>Productos:</h2>
 <h3>Bienvenido:{{user.nombre}}--- su rol es :{{user.rol}}--- <a href="/cart/{{user.cart._id}}">ir al carrito</a></h3>
+ {{#if error}}
+        <div style="color: red;">{{error}}</div>
+    {{/if}}
 <ul>
   {{#each productos}}
+     <form action="/products/{{this._id}}" method="post">
+ 
+    <button style="color:red" type="submit">Eliminar</button>
+  </form>
     <li>nombre:{{this.title}}</li>
      <li>$:{{this.price}}</li>
        <form action="/carts/{{../user.cart._id}}/products/{{this._id}}" method="post">

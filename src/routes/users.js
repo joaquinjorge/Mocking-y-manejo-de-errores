@@ -1,8 +1,8 @@
-const ProductsController = require("../controller/products.controller.js");
+const UsersController = require("../controller/users.controller.js");
 
 const Router = require("express").Router;
 
-const productsRouter = Router();
+const usersRouter = Router();
 
 const auth1 = (permisos = []) =>
   function (req, res, next) {
@@ -29,21 +29,13 @@ const auth1 = (permisos = []) =>
     return next();
   };
 
-productsRouter.get("/", ProductsController.getProducts);
-productsRouter.get("/mockingproducts", ProductsController.mockingProducts);
-productsRouter.post(
-  "/",
-  auth1(["ADMIN", "PREMIUM"]),
-  ProductsController.createProducts
+usersRouter.get("/", UsersController.getUsers);
+usersRouter.post(
+  "/premium/:uid",
+  auth1(["USUARIO", "PREMIUM"]),
+  UsersController.changeUsersRol
 );
 
-productsRouter.put("/:id", auth1(["ADMIN"]), ProductsController.updateProducts);
+usersRouter.get("/:uid", UsersController.getUsersById);
 
-productsRouter.delete(
-  "/:pid",
-  auth1(["ADMIN"]),
-  ProductsController.deleteProducts
-);
-
-productsRouter.get("/:pid", ProductsController.getProductsById);
-module.exports = productsRouter;
+module.exports = usersRouter;

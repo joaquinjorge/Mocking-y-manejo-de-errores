@@ -6,8 +6,8 @@ class UsuariosService {
     this.dao = DAO;
   }
 
-  async getUsuarios({ ...props }) {
-    return await this.dao.get({ ...props });
+  async getUsuarios() {
+    return await this.dao.getDTO();
   }
   async getUsuariosDto(email) {
     let usuariosDto = await this.dao.getDTO();

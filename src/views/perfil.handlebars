@@ -1,4 +1,14 @@
 <h2>Perfil {{usuario.nombre}}</h2>
+<h2>id {{usuario.id}}</h2>
 <hr>
 <p>Nombre: {{usuario.nombre}} -Apellido: {{usuario.apellido}} -  Correo Electrónico: <strong>{{usuario.email}}</strong> - Rol:<strong> {{usuario.rol}}</strong></p>
+<form action="/api/users/premium/{{usuario.id}}" method="post">
+  {{#if error}}
+        <div style="color: red;">{{error}}</div>
+    {{/if}}
+
+   
+
+  <input type="submit" value="cambiar rol" />
+</form>
   {{>menu}}

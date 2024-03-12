@@ -79,15 +79,18 @@ class ProductsController {
     if (!status) {
       status = true;
     }
-
+    let priceNumber=Number(price)
+    let stockNumber=Number(stock)
+   
     let nuevoProducto = {
       title,
-      price,
+     price:priceNumber,
       description,
       code,
-      stock,
+      stock:stockNumber,
       status,
       category,
+      owner:req.session.usuario.rol=="premium"?req.session.usuario.email:"admin"
     };
     let existe;
 
@@ -128,6 +131,8 @@ class ProductsController {
         .json({ error: errors.INCOMPLETE, detalle: message });
     }
 
+
+
     if (title && typeof title !== "string") {
       return res
         .status(400)
@@ -148,12 +153,12 @@ class ProductsController {
         .status(400)
         .json({ error: "La propiedad category debe ser de tipo string" });
     }
-    if (price && typeof price !== "number") {
+    if (priceNumber && typeof priceNumber !== "number") {
       return res
         .status(400)
         .json({ error: "La propiedad price debe ser de tipo numérico" });
     }
-    if (stock && typeof stock !== "number") {
+    if (stockNumber && typeof stockNumber !== "number") {
       return res
         .status(400)
         .json({ error: "La propiedad stock debe ser de tipo numérico" });

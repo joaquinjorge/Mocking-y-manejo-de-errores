@@ -2,6 +2,8 @@ const productsService = require("../services/products.service.js");
 const mongoose = require("mongoose");
 const cartsModelo = require("../dao/models/carts.js");
 const cartsService = require("../services/carts.service.js");
+const errors = require("../customError.js");
+const errorHandler = require("../errorHandler.js");
 class VistasController {
   constructor() {}
   static async getProducts(req, res) {
@@ -9,7 +11,7 @@ class VistasController {
     if (req.query.pagina) {
       pagina = req.query.pagina;
     }
-
+    let { error } = req.query;
     let productos;
     try {
       // usuarios=await usuariosModelo.find().lean()
@@ -36,8 +38,18 @@ class VistasController {
       estilo: "stylesHome",
       user,
       login: req.session.usuario ? true : false,
+      error,
     });
   }
+
+  static async agregarProductos(req, res) {
+    res.status(200).render("agregarProducto", {
+      titulo: "agregarProducto",
+      estilo: "stylesHome",
+      login: req.session.usuario ? true : false,
+    });
+  }
+
   static async getProductsRealTime(req, res) {
     let products = await productsService.getProduct();
     res.status(200).render("realTimeProducts", {
@@ -138,6 +150,30 @@ class VistasController {
     });
   }
 
+  static async getRecupero01(req, res) {
+    let { error } = req.query;
+
+    res.setHeader("Content-Type", "text/html");
+    res.status(200).render("recupero01", {
+      error,
+      login: req.session.usuario ? true : false,
+      estilo: "stylesHome",
+    });
+  }
+
+  static async getRecupero02(req, res) {
+    let { error, mensaje, token } = req.query;
+
+    res.setHeader("Content-Type", "text/html");
+    res.status(200).render("recupero02", {
+      error,
+      mensaje,
+      token,
+      login: req.session.usuario ? true : false,
+      estilo: "stylesHome",
+    });
+  }
+
   static async addProductToCart(req, res) {
     let { cid, pid } = req.params;
 
@@ -178,6 +214,13 @@ class VistasController {
         .json({ error: `Error al buscar producto`, message: error.message });
     }
 
+    if (existeProducto.owner) {
+      if (existeProducto.owner == req.session.usuario.email) {
+        return res.redirect(
+          "/products?error=no puedes agregar un producto creado por ti"
+        );
+      }
+    }
     if (!existeProducto) {
       res.setHeader("Content-Type", "application/json");
       return res
@@ -201,7 +244,7 @@ class VistasController {
       });
     } else {
       existeCarrito.products[indice].quantity =
-        existeCarrito.products[indice].quantity + cantidad;
+        Number(existeCarrito.products[indice].quantity) + Number(cantidad);
     }
 
     try {
@@ -225,7 +268,68 @@ class VistasController {
         .json({ error: `Error inesperado`, message: error.message });
     }
   }
+  static async deleteProducts(req, res) {
+    let id = req.params.pid;
 
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      req.logger.error(`el id ${id}no es un id valido de mongoose `);
+      const error = new Error(errors.INVALID_ID, `el id ${id} es invalido`);
+      const { message, status } = errorHandler(error);
+      res.setHeader("Content-Type", "application/json");
+      return res
+        .status(status)
+        .json({ error: errors.INVALID_ID, detalle: message });
+    }
+    let productos = await productsService.getProductById({ _id: id });
+    console.log(productos.owner);
+    console.log(req.session.usuario.email);
+    if (!productos) {
+      req.logger.error(`El producto con id ${id} no se encontro en la DB`);
+      const error = new Error(
+        errors.PRODUCT_NOT_FOUND,
+        `El producto con id ${id} no se encontro en la DB`
+      );
+      const { message, status } = errorHandler(error);
+      res.setHeader("Content-Type", "application/json");
+      return res
+        .status(status)
+        .json({ error: errors.PRODUCT_NOT_FOUND, detalle: message });
+    }
+    let productoEliminado;
+
+    try {
+      if (req.session.usuario.rol === "admin") {
+        productoEliminado = await productsService.deleteProduct(id);
+        req.logger.info("producto eliminado con exito");
+
+        res.setHeader("Content-Type", "application/json");
+        return res.status(200).json({ payload: "Eliminacion realizada" });
+      }
+
+      if (
+        req.session.usuario.rol === "premium" &&
+        productos.owner === req.session.usuario.email
+      ) {
+        productoEliminado = await productsService.deleteProduct(id);
+        req.logger.info("producto eliminado con exito");
+
+        res.setHeader("Content-Type", "application/json");
+        return res.status(200).json({ payload: "Eliminacion realizada" });
+      }
+
+      res.setHeader("Content-Type", "application/json");
+      return res
+        .status(403)
+        .json({ message: "No tienes permiso para eliminar este producto" });
+    } catch (error) {
+      req.logger.error(error.message);
+      res.setHeader("Content-Type", "application/json");
+      return res.status(500).json({
+        error: `Error inesperado en el servidor - Intente más tarde, o contacte a su administrador`,
+        detalle: error.message,
+      });
+    }
+  }
   static async deleteProductCart(req, res) {
     let { cid, pid } = req.params;
     if (!mongoose.isValidObjectId(cid) || !mongoose.isValidObjectId(pid)) {

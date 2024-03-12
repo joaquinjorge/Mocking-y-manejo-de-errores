@@ -15,6 +15,7 @@ const passport = require("passport");
 const inicializarPassport = require("./config/config.passport.js");
 const configDotenv = require("./config/config.js");
 const middLog = require("./logger/winston.js");
+const usersRouter = require("./routes/users.js");
 
 const app = express();
 
@@ -34,7 +35,7 @@ app.use(
 app.engine("handlebars", engine());
 app.set("view engine", "handlebars");
 app.set("views", path.join(__dirname, "/views"));
-app.use(middLog)
+app.use(middLog);
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 inicializarPassport();
@@ -61,6 +62,7 @@ app.use(
 );
 app.use("/api/carts", cartRouter);
 app.use("/", vistasRouter);
+app.use("/api/users", usersRouter);
 
 const server = app.listen(configDotenv.PORT, () =>
   console.log("el servidor esta listo")

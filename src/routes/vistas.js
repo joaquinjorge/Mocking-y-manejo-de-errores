@@ -20,13 +20,6 @@ const auth1 = (permisos = []) =>
       return next();
     }
 
-    if (!req.session.usuario || !req.session.usuario.rol) {
-      res.setHeader("Content-Type", "application/json");
-      return res
-        .status(401)
-        .json({ error: `No hay usuarios autenticados...!!!` });
-    }
-
     if (!permisos.includes(req.session.usuario.rol.toLowerCase())) {
       res.setHeader("Content-Type", "application/json");
       return res
@@ -55,52 +48,64 @@ const auth2 = (req, res, next) => {
 
 vistasRouter.get(
   "/products",
-  auth1(["USUARIO", "ADMIN"]),
+  auth1(["USUARIO", "ADMIN", "PREMIUM"]),
   VistasController.getProducts
+);
+
+vistasRouter.post(
+  "/products/:pid",
+  auth1(["PREMIUM", "ADMIN"]),
+  VistasController.deleteProducts
 );
 
 vistasRouter.get(
   "/realtimeproducts",
-  auth1(["USUARIO", "ADMIN"]),
+  auth1(["USUARIO", "ADMIN", "PREMIUM"]),
   VistasController.getProductsRealTime
 );
 vistasRouter.get("/", auth, VistasController.homePage);
 
 vistasRouter.get(
   "/carts",
-  auth1(["USUARIO", "ADMIN"]),
+  auth1(["USUARIO", "ADMIN", "PREMIUM"]),
   VistasController.getCarts
 );
 vistasRouter.get(
   "/cart/:cid",
-  auth1(["USUARIO", "ADMIN"]),
+  auth1(["USUARIO", "ADMIN", "PREMIUM"]),
   VistasController.getCartsId
 );
 
 vistasRouter.get(
   "/chat",
-  auth1(["USUARIO", "ADMIN"]),
+  auth1(["USUARIO", "ADMIN", "PREMIUM"]),
   VistasController.getChat
 );
 
 vistasRouter.get(
   "/perfil",
-  auth1(["USUARIO", "ADMIN"]),
+  auth1(["USUARIO", "ADMIN", "PREMIUM"]),
   VistasController.getPerfil
 );
 vistasRouter.get("/login", auth2, VistasController.getlogin);
 vistasRouter.post(
   "/carts/:cid/products/:pid",
-  auth1(["USUARIO", "ADMIN"]),
+  auth1(["USUARIO", "ADMIN", "PREMIUM"]),
   VistasController.addProductToCart
 );
 vistasRouter.post(
   "/cart/:cid/product/:pid",
-  auth1(["USUARIO", "ADMIN"]),
+  auth1(["USUARIO", "ADMIN", "PREMIUM"]),
   VistasController.deleteProductCart
 );
 vistasRouter.get("/registro", auth2, VistasController.getRegistro);
-
+vistasRouter.get("/recupero01", VistasController.getRecupero01);
+vistasRouter.get("/recupero02", VistasController.getRecupero02);
+vistasRouter.get(
+  "/agregarProducto",
+  auth1(["ADMIN", "PREMIUM"]),
+  VistasController.agregarProductos
+);
 vistasRouter.get("/loggertest", (req, res) => {
   req.logger.debug("prueba logger funcionando...");
   req.logger.http("prueba logger funcionando...");
