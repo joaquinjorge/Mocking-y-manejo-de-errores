@@ -275,7 +275,7 @@ class CartsController {
       } else {
         res.setHeader("Content-Type", "application/json");
         return res
-          .status(200)
+          .status(404)
           .json({ message: "No se modificó ningún producto" });
       }
     } catch (error) {
@@ -312,7 +312,7 @@ class CartsController {
           message: "Todos los productos han sido eliminados del carrito",
         });
       } else {
-        res.status(400).json({ error: "No se encontró el carrito" });
+        res.status(404).json({ error: "No se encontró el carrito" });
       }
     } catch (error) {
       req.logger.erro(error.message);

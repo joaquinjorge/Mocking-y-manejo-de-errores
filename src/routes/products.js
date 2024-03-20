@@ -33,15 +33,15 @@ productsRouter.get("/", ProductsController.getProducts);
 productsRouter.get("/mockingproducts", ProductsController.mockingProducts);
 productsRouter.post(
   "/",
-  auth1(["ADMIN", "PREMIUM"]),
+  
   ProductsController.createProducts
 );
 
-productsRouter.put("/:id", auth1(["ADMIN"]), ProductsController.updateProducts);
+productsRouter.put("/:id",  ProductsController.updateProducts);
 
 productsRouter.delete(
   "/:pid",
-  auth1(["ADMIN"]),
+ 
   ProductsController.deleteProducts
 );
 

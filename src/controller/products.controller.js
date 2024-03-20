@@ -199,7 +199,7 @@ class ProductsController {
       req.logger.info(JSON.stringify(nuevoProducto));
       req.io.emit("nuevoProdConMiddleware", nuevoProducto);
       res.setHeader("Content-Type", "application/json");
-      res.status(200).json({ payload: productoNuevo });
+      res.status(201).json({ payload: productoNuevo });
     } catch (error) {
       req.logger.error(error.message);
       res.setHeader("Content-Type", "application/json");

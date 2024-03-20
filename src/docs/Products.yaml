@@ -1,0 +1,235 @@
+# https://swagger.io/docs/specification/basic-structure/
+
+paths:
+  /api/products/:
+
+    get:
+      summary: Obtiene todos los productos
+      tags:
+        - Products
+      responses:
+        "200":
+          description: Los productos fueron obtenidos OK desde la BD
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  products:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Products'
+        "500":
+          description: Error interno del servidor
+
+    post:
+      summary: Crea un producto
+      tags:
+        - Products
+      responses:
+        "201":
+          description: producto creado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  products:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Products'
+        "400":
+          description: Error al crear producto
+          content: 
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/errorPost1' 
+                  - $ref: '#/components/schemas/errorPost2'
+        "500":
+          description: Error al crear producto
+  /api/products/{pid}:
+
+    get:
+      summary: Obtiene el producto
+      parameters:
+        - name: pid
+          in: path
+          required: true
+          description: Obtiene el producto seleccionado por ID
+          schema:
+            type : string
+      tags:
+        - Products
+      responses:
+        "200":
+          description: Se obtuvo el producto correctamente
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  products:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Products'
+        "400":
+          description: Error de ID
+          content: 
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/errorId1' 
+                  - $ref: '#/components/schemas/errorId2' 
+        "500":
+          description: Error al buscar el producto
+
+    put:
+      summary: Edita un producto
+      parameters:
+        - name: pid
+          in: path
+          required: true
+          description: Edita el producto seleccionado por ID
+          schema:
+            type : string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object     
+      tags:
+        - Products
+      responses:
+        "200":
+          description: Producto modificado
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/modOk'
+                  - $ref: '#/components/schemas/noModOk'                
+        "400":
+          description: Error al editar el producto
+          content: 
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Products'
+        "500":
+          description: Error al editar el producto
+          content: 
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/errorBuscar1' 
+                  - $ref: '#/components/schemas/error'
+                  
+    delete:
+      summary: Elimina un producto
+      parameters:
+        - name: pid
+          in: path
+          required: true
+          description: elimina el producto seleccionado por ID
+          schema:
+            type : string
+      tags:
+        - Products
+      responses:
+        "200":
+          description: Producto eliminado
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/delOk'
+                  - $ref: '#/components/schemas/noDelOk'                
+        "400":
+          description: Indique un ID válido
+        "403":
+          description: No tiene permisos para eliminar este producto
+        "404":
+          description: No existe un producto con ese ID
+        "500":
+          description: Error al eliminar el producto
+          content: 
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/errorBuscar1' 
+                  - $ref: '#/components/schemas/error'
+
+
+components:
+  schemas:
+    noDelOk:
+      type: string
+      description: No se eliminó ningun producto
+    delOk:
+      type: object
+      description: Producto eliminado
+      properties:
+        products:
+          type: array
+          items:
+            $ref: '#/components/schemas/Products'
+    noModOk:
+      type: string
+      description: No se realizó ninguna modificación
+    modOk:
+      type: object
+      description: Producto modificado
+      properties:
+        products:
+          type: array
+          items:
+            $ref: '#/components/schemas/Products'
+    errorBuscar1:
+      type: string
+      description: Error al buscar el producto
+    error:
+      type: string
+      description: Error inesperado
+    errorPost1:
+      type: string
+      description: Faltan datos requeridos en el formulario
+    errorPost2:
+      type: string
+      description: Ya existe un producto con este título y código
+    errorId1:
+      type: string
+      description: Indique un ID válido
+    errorId2:
+      type: string
+      description: No existe un producto con ese ID
+    errorId3:
+      type: string
+      description: No se puede modificar el ID
+    Products:
+      type: object
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        description: 
+          type: string
+        price:
+          type: integer
+        code:
+          type: string
+        stock:
+          type: integer
+        category:
+          type: string
+        owner:
+          type: string
+        deleted:
+          type: boolean

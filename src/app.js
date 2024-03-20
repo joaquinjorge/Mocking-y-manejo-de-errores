@@ -5,6 +5,8 @@ const { Server } = require("socket.io");
 const mongoose = require("mongoose");
 const sessions = require("express-session");
 const mongoStore = require("connect-mongo");
+const swaggerJSDoc = require("swagger-jsdoc");
+const swaggerUi = require("swagger-ui-express");
 
 const productsRouter = require("./routes/products.js");
 const cartRouter = require("./routes/cart.js");
@@ -18,6 +20,21 @@ const middLog = require("./logger/winston.js");
 const usersRouter = require("./routes/users.js");
 
 const app = express();
+
+
+const swaggerOptions = {
+  definition: {
+    openapi: '3.0.0',
+    info: {
+      title: "API de Ecommerce ",
+      description: " Documentación de Ecommerce "
+    }
+  },
+  apis: ["../src/docs/*.yaml"]
+}
+
+const specs=swaggerJSDoc(swaggerOptions)
+app.use("/api-docs",swaggerUi.serve, swaggerUi.setup(specs))
 
 app.use(
   sessions({
