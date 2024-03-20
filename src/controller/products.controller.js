@@ -81,7 +81,14 @@ class ProductsController {
     }
     let priceNumber=Number(price)
     let stockNumber=Number(stock)
-   
+   let owner ="admin"
+   if (req.session.usuario ) {
+    if (req.session.usuario.rol=="premium") {
+   return owner=req.session.usuario.email
+    }
+   }
+  
+
     let nuevoProducto = {
       title,
      price:priceNumber,
@@ -90,7 +97,7 @@ class ProductsController {
       stock:stockNumber,
       status,
       category,
-      owner:req.session.usuario.rol=="premium"?req.session.usuario.email:"admin"
+      owner
     };
     let existe;
 

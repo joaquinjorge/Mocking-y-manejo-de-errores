@@ -26,6 +26,12 @@ paths:
 
     post:
       summary: Crea un producto
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
       tags:
         - Products
       responses:
