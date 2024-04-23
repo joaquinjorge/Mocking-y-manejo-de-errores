@@ -31,12 +31,12 @@ const auth1 = (permisos = []) =>
 
 productsRouter.get("/", ProductsController.getProducts);
 productsRouter.get("/mockingproducts", ProductsController.mockingProducts);
-productsRouter.post("/", ProductsController.createProducts);
+productsRouter.post("/",auth1(["ADMIN","PREMIUM"]), ProductsController.createProducts);
 
-productsRouter.put("/:id", ProductsController.updateProducts);
+productsRouter.put("/:id",auth1(["ADMIN","PREMIUM"]), ProductsController.updateProducts);
 
 productsRouter.delete(
-  "/:pid",
+  "/:pid",auth1(["ADMIN","PREMIUM"]),
 
   ProductsController.deleteProducts
 );

@@ -37,24 +37,24 @@ const auth1 = (permisos = []) =>
 
     return next();
   };
-cartRouter.post("/", CartsController.createCart);
+cartRouter.post("/", auth1(["ADMIN"]), CartsController.createCart);
 
 cartRouter.get("/", CartsController.getCarts);
 
 cartRouter.get("/:cid", CartsController.getCartsById);
 
 cartRouter.post(
-  "/:cid/product/:pid",
+  "/:cid/product/:pid",auth1(["ADMIN","USUARIO","PREMIUM"]),
   
   CartsController.addProductToCart
 );
 cartRouter.delete(
-  "/:cid/product/:pid",
+  "/:cid/product/:pid",auth1(["ADMIN","USUARIO","PREMIUM"]),
 
   CartsController.deleteProductCart
 );
 
-cartRouter.delete("/:cid", CartsController.deleteCart);
+cartRouter.delete("/:cid",auth1(["ADMIN"]), CartsController.deleteCart);
 cartRouter.post(
   "/:cid/purchase",
   
