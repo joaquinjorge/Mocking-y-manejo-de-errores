@@ -1,3 +1,4 @@
+{{>goToCart}}
 <h2>Product Page</h2>
 <hr />
 <h2>Productos:</h2>
@@ -7,16 +8,19 @@
     {{/if}}
 <ul>
   {{#each productos}}
+ 
      <form action="/products/{{this._id}}" method="post">
  
     <button style="color:red" type="submit">Eliminar</button>
   </form>
     <li>nombre:{{this.title}}</li>
      <li>$:{{this.price}}</li>
-       <form action="/carts/{{../user.cart._id}}/products/{{this._id}}" method="post">
-    <input type="number" name="quantity" min="1" value="1">
-    <button type="submit">Agregar al carrito</button>
-  </form>
+      <li>stock:{{this.stock}}</li>
+       {{!-- <form action="/carts/{{../user.cart._id}}/products/{{this._id}}" method="post"> --}}
+    <input class="quantity-input" type="number" name="quantity" min="1" value="1">
+    <button class="add-to-cart-button" data-product-id="{{this._id}} "  data-cart-id="{{../user.cart._id}} "  onclick="comprar(this)">Comprar</button>Agregar al carrito</button>
+  {{!-- </form> --}}
+ 
   {{/each}}
 </ul>
 
@@ -43,3 +47,4 @@
 <a href="/carts">Cart</a>
 <a href="/">Home</a>
 {{>menu}}
+<script src="/js/carrito.js"></script>

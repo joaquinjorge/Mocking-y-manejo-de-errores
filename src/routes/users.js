@@ -30,9 +30,10 @@ const auth1 = (permisos = []) =>
   };
 
 usersRouter.get("/", UsersController.getUsers);
+usersRouter.delete("/deleteUser/:uid", auth1(["ADMIN"]), UsersController.deleteUser);
 usersRouter.post(
-  "/premium/:uid",
-  auth1(["USUARIO", "PREMIUM"]),
+  "/premium/:uid", auth1(["ADMIN", "PREMIUM","USUARIO"]),
+
   UsersController.changeUsersRol
 );
 

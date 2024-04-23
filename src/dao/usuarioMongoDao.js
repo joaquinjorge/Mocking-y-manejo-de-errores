@@ -11,6 +11,9 @@ class UsuarioMongoDAO {
   async getBy({ ...props }) {
     return await usuariosModelo.findOne({ ...props });
   }
+  async delete(id) {
+    return await usuariosModelo.findByIdAndDelete(id)
+  }
 
   async create({ ...props }) {
     return await usuariosModelo.create({ ...props });

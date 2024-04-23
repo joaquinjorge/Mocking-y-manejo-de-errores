@@ -79,25 +79,25 @@ class ProductsController {
     if (!status) {
       status = true;
     }
-    let priceNumber=Number(price)
-    let stockNumber=Number(stock)
-   let owner ="admin"
-   if (req.session.usuario ) {
-    if (req.session.usuario.rol=="premium") {
-   return owner=req.session.usuario.email
+    let priceNumber = Number(price);
+    let stockNumber = Number(stock);
+    let owner;
+
+    if (req.session.usuario && req.session.usuario.rol == "premium") {
+      owner = req.session.usuario.email;
+    } else {
+      owner = "admin";
     }
-   }
-  
 
     let nuevoProducto = {
       title,
-     price:priceNumber,
+      price: priceNumber,
       description,
       code,
-      stock:stockNumber,
+      stock: stockNumber,
       status,
       category,
-      owner
+      owner,
     };
     let existe;
 
@@ -137,8 +137,6 @@ class ProductsController {
         .status(status)
         .json({ error: errors.INCOMPLETE, detalle: message });
     }
-
-
 
     if (title && typeof title !== "string") {
       return res

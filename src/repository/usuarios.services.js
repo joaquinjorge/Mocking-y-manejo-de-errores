@@ -18,6 +18,9 @@ class UsuariosService {
   async getUsuarioById({ ...props }) {
     return await this.dao.getBy({ ...props });
   }
+  async deleteUsuarioById(id) {
+    return await this.dao.delete(id)
+  }
 
   async createUsuario({ ...props }) {
     return await this.dao.create({ ...props });

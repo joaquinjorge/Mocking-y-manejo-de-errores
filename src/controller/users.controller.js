@@ -8,13 +8,17 @@ class UsersController {
 
   static async getUsers(req, res) {
     let usuarios;
-
+    let users;
     try {
       usuarios = await usuariosService.getUsuarios();
+      users = usuarios.map((user) => {
+        const { password, ...userWithoutPassword } = user;
+        return userWithoutPassword;
+      });
     } catch (error) {
       req.logger.error(error.message);
     }
-    res.status(200).json({ usuarios });
+    res.status(200).json({ users });
   }
 
   static async getUsersById(req, res) {
@@ -61,6 +65,20 @@ class UsersController {
     res.setHeader("Content-Type", "application/json");
     return res.status(200).json({ usuario: existe });
   }
+  static async deleteUser(req, res) {
+    const userId = req.params.uid;
+    try {
+      const user = await usuariosService.getUsuarioById({ _id: userId });
+      if (!user) {
+        return res.status(404).json("User not found.");
+      }
+      await usuariosService.deleteUsuarioById(userId);
+      res.status(200).json(`Usuario eliminado con exito`);
+    } catch (error) {
+      console.error(error);
+      res.status(500).send(error.message);
+    }
+  }
   static async changeUsersRol(req, res) {
     const { uid } = req.params;
 
@@ -74,15 +92,15 @@ class UsersController {
       // Verificar el rol actual del usuario y cambiarlo
       if (user.role === "usuario") {
         user.role = "premium";
-        req.session.usuario.rol = "premium";
       } else if (user.role === "premium") {
         user.role = "usuario";
-        req.session.usuario.rol = "usuario";
       }
 
       await usuariosService.updateUsuarios({ _id: uid }, user);
 
-      res.json({ message: "Rol actualizado con éxito", newRole: user.role });
+      res
+        .status(200)
+        .json({ message: "Rol actualizado con éxito", newRole: user.role });
     } catch (error) {
       res
         .status(500)

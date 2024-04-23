@@ -18,7 +18,7 @@ const inicializarPassport = require("./config/config.passport.js");
 const configDotenv = require("./config/config.js");
 const middLog = require("./logger/winston.js");
 const usersRouter = require("./routes/users.js");
-
+const PORT=configDotenv.PORT||8080
 const app = express();
 
 
@@ -81,7 +81,7 @@ app.use("/api/carts", cartRouter);
 app.use("/", vistasRouter);
 app.use("/api/users", usersRouter);
 
-const server = app.listen(configDotenv.PORT, () =>
+const server = app.listen(PORT, () =>
   console.log("el servidor esta listo")
 );
 const io = new Server(server);

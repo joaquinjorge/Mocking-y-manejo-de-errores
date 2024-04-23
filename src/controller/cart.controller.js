@@ -9,6 +9,7 @@ const ticketsService = require("../services/ticket.service.js");
 const usuariosService = require("../repository/usuarios.services.js");
 const errors = require("../customError.js");
 const errorHandler = require("../errorHandler.js");
+const enviarEmail = require("../mails/mails.js");
 
 class CartsController {
   constructor() {}
@@ -76,7 +77,7 @@ class CartsController {
       req.logger.error("no se pudo crear un carrito", error.message);
     }
     res.setHeader("Content-Type", "application/json");
-    res.status(201).json({ carrito });
+    res.status(201).json({ message: "Cart created", cartId: carrito._id });
   }
   static async addProductToCart(req, res) {
     let { cid, pid } = req.params;
@@ -176,7 +177,9 @@ class CartsController {
       if (resultado.modifiedCount > 0) {
         req.logger.info("modificacion realizada");
         res.setHeader("Content-Type", "application/json");
-        return res.status(200).json({ payload: "modificación realizada" });
+        return res
+          .status(200)
+          .json({ payload: `${existeProducto.title} agregado al carrito` });
       } else {
         res.setHeader("Content-Type", "application/json");
         return res
@@ -399,7 +402,15 @@ class CartsController {
       if (productsNotPurchased.length > 0) {
         return res.status(200).json({ productsNotPurchased });
       }
-
+      await enviarEmail(
+        req.session.usuario.email,
+        "informacion de compra",
+        `<h2 style="color: #333;">Ticket Information</h2>
+        <p><strong>Code:</strong> ${newTicket.code}</p>
+        <p><strong>Amount:</strong> $${newTicket.amount}</p>
+        <p><strong>Purchaser:</strong> ${newTicket.purchaser}</p>
+        `
+      );
       res.status(200).json({ newTicket });
     } catch (error) {
       req.logger.error(error.message);

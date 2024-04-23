@@ -1,0 +1,22 @@
+<h2>Modificar usuarios</h2>
+<hr />
+<h2>usuarios:</h2>
+
+<div>
+  {{#each usuarios}}
+    
+ 
+    <h2>nombre:{{this.first_name}}</h2>
+    <h2>apelldo:{{this.last_name}}</h2>
+    <h2>edad:{{this.age}}</h2>
+    <h2>rol:{{this.role}}</h2>
+    
+
+    <button  onclick="modificarUsuario('{{this._id}}')" id="cambiarRol" >cambiar rol</button>
+    <button  style="color: red;" onclick="eliminarUsuario('{{this._id}}')" id="eliminarUser" >Eliminar</button>
+
+  {{/each}}
+        
+    </div>
+
+<script src="/js/modificarUsuarios.js"></script>

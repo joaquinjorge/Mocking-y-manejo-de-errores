@@ -19,8 +19,13 @@ const auth1 = (permisos = []) =>
     if (permisos.includes("PUBLIC")) {
       return next();
     }
-
-    if (!permisos.includes(req.session.usuario.rol.toLowerCase())) {
+     if (!req.session.usuario) {
+      res.setHeader("Content-Type", "application/json");
+      return res
+        .status(403)
+        .json({ error: `No tiene privilegios suficientes para este recurso` });
+     }
+    if (!permisos.includes(req.session.usuario.rol)) {
       res.setHeader("Content-Type", "application/json");
       return res
         .status(403)
@@ -63,6 +68,13 @@ vistasRouter.get(
   auth1(["USUARIO", "ADMIN", "PREMIUM"]),
   VistasController.getProductsRealTime
 );
+
+vistasRouter.get(
+  "/modificarUsuario",auth1(["ADMIN"]),
+  
+  VistasController.modificarUsuario
+);
+
 vistasRouter.get("/", auth, VistasController.homePage);
 
 vistasRouter.get(
@@ -103,7 +115,7 @@ vistasRouter.get("/recupero01", VistasController.getRecupero01);
 vistasRouter.get("/recupero02", VistasController.getRecupero02);
 vistasRouter.get(
   "/agregarProducto",
-  auth1(["ADMIN", "PREMIUM"]),
+  
   VistasController.agregarProductos
 );
 vistasRouter.get("/loggertest", (req, res) => {

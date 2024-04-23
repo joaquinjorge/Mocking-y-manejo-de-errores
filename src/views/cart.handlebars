@@ -22,10 +22,10 @@
     
       {{/each}}
 
-      <form action="/api/carts/{{existe._id}}/purchase" method="post">
+   
       
-      <input type="submit" value="Finaliar Compra">
-  </form>
+    <button onclick="finalizarCompra('{{existe._id}}')" >Finalizar Compra</button>
+
       <a href="/products">seguir comprando</a>
     {{!-- <li id="producto-{{_id}}">{{title}}</li></div> --}}
  
@@ -33,3 +33,4 @@
 <a href="/">home</a>
   
    {{>menu}}
+<script src="/js/carrito.js"></script>

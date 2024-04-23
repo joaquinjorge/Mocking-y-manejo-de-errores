@@ -4,6 +4,8 @@ const cartsModelo = require("../dao/models/carts.js");
 const cartsService = require("../services/carts.service.js");
 const errors = require("../customError.js");
 const errorHandler = require("../errorHandler.js");
+const usuariosService = require("../repository/usuarios.services.js");
+const enviarEmail = require("../mails/mails.js");
 class VistasController {
   constructor() {}
   static async getProducts(req, res) {
@@ -39,6 +41,7 @@ class VistasController {
       user,
       login: req.session.usuario ? true : false,
       error,
+      id: req.session.usuario.cart,
     });
   }
 
@@ -57,6 +60,7 @@ class VistasController {
       titulo: "Real Time Products",
       estilo: "stylesHome",
       login: req.session.usuario ? true : false,
+      id: req.session.usuario.cart,
     });
   }
   static async homePage(req, res) {
@@ -124,9 +128,12 @@ class VistasController {
     let usuario = req.session.usuario;
 
     res.setHeader("Content-Type", "text/html");
-    res
-      .status(200)
-      .render("perfil", { usuario, login: req.session.usuario ? true : false });
+    res.status(200).render("perfil", {
+      estilo: "stylesHome",
+      usuario,
+      login: req.session.usuario ? true : false,
+      id: req.session.usuario.cart,
+    });
   }
   static async getlogin(req, res) {
     let { error, mensaje } = req.query;
@@ -135,6 +142,16 @@ class VistasController {
     res.status(200).render("login", {
       error,
       mensaje,
+      login: req.session.usuario ? true : false,
+    });
+  }
+
+  static async modificarUsuario(req, res) {
+    let usuarios = await usuariosService.getUsuarios();
+
+    res.setHeader("Content-Type", "text/html");
+    res.status(200).render("modificarUsuario", {
+      usuarios,
       login: req.session.usuario ? true : false,
     });
   }
@@ -281,8 +298,12 @@ class VistasController {
         .json({ error: errors.INVALID_ID, detalle: message });
     }
     let productos = await productsService.getProductById({ _id: id });
-    console.log(productos.owner);
-    console.log(req.session.usuario.email);
+
+    let user;
+    if (productos.owner) {
+      user = await usuariosService.getUsuarioById({ email: productos.owner });
+    }
+
     if (!productos) {
       req.logger.error(`El producto con id ${id} no se encontro en la DB`);
       const error = new Error(
@@ -305,7 +326,15 @@ class VistasController {
         res.setHeader("Content-Type", "application/json");
         return res.status(200).json({ payload: "Eliminacion realizada" });
       }
-
+      if (productos.owner && user.role == "premium") {
+        await enviarEmail(
+          productos.owner,
+          "informacion",
+          `
+          <p>Un producto creado por ti fue eliminado</p>
+          `
+        );
+      }
       if (
         req.session.usuario.rol === "premium" &&
         productos.owner === req.session.usuario.email
